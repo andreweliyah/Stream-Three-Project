@@ -7,12 +7,11 @@ from .models import Post
 from .forms import BlogPostForm
 from django.contrib.auth.decorators import login_required
 
-# Create your views here.
 # >posts_view
 def posts_view(request):
   posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
   return render(request, "blog/posts.html", {'posts': posts})
-
+  
 # >post_detail
 def post_detail(request, id):
   post = get_object_or_404(Post, pk=id)

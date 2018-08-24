@@ -8,4 +8,8 @@ urlpatterns = [
   url(r'^profile/$', views.profile, name = 'profile'),
   url(r'^logout/$', views.logout, name='logout'),
   url(r'^login/$', views.login, name = 'login'),
+  url(r'^settings/', views.settings, name='settings'),
+  url(r'^payments/', views.payments),
+  url(r'^delete/', views.delete, name='delete'),
+  url(r'^cancel_subscription/$', views.cancel_subscription, name='cancel'),
 ]

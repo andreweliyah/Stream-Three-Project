@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <h1>Account Settings</h1>
+
+  <h2>Subscribe</h2>
+  <p>A subscription allows you to create and vote on "FEATURES"</p>
+
+  {% if status %}
+    <form action="{% url 'accounts:cancel' %}" method="POST">
+       {% csrf_token %}
+      <button class="btn btn-danger">Unsubscribe</button>
+    </form>
+    
+    {% else %}
+    <form action="/accounts/payments/" method="POST">
+      <script
+        src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+        data-key="pk_test_FrKRSDGVig99hJ3lEQzR4He4"
+        data-amount="999"
+        data-name="DevTracker.com"
+        data-description="Subscribe"
+        data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+        data-locale="auto"
+        data-zip-code="true">
+      </script>
+    </form>
+  {% endif %} 
+
+  <h2>Delete Account</h2>
+  <button id="del_account_btn" class="btn btn-danger">Delete Account</button>
+  <form id="del_account_confirm" style="display: none;" method="POST" action="{% url 'accounts:delete' %}">
+    {% csrf_token %}
+    <div>
+      <p><strong>Caustion</strong>: Are you sure you want to delete your account?</p>
+      <p>If you choose to delete your account your subscriptions will be deleted as well, along with all of your tickets, comments and votes.</p>
+      <input id="token" type="text" value="{{ token }}" hidden>
+      <button id='del_no'>No</button>
+      <button id='del_yes'>Yes</button>
+    </div>
+  </form>
+{% endblock %}
+{% block aux %}
+  <script src="{% static 'accounts/js/profile.js' %}"></script>
+{% endblock %}

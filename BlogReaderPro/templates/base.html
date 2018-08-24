@@ -43,9 +43,8 @@
           <a class="nav-item btn btn-outline-primary mx-2" href="#" data-toggle="dropdown">{{ user.email | capfirst }}</a>
           <div class="dropdown-menu">
             <div class="list-group list-group-flush justify-content-center d-flex">
-              <a class="list-group-item list-group-item-action text-center" href="">Profile</a>
+              <a class="list-group-item list-group-item-action text-center" href="{% url 'accounts:profile' %}">Profile</a>
               <a class="list-group-item list-group-item-action text-center" href="">Settings</a>
-              <!-- <a class="list-group-item list-group-item-action text-center" href="">Report an Issue</a> -->
               <a class="list-group-item list-group-item-action text-center" href="">Logout</a>
             </div>
           </div>

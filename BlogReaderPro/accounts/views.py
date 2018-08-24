@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse
 from accounts.forms import UserRegistrationForm
 from .models import User
-from django.contrib import auth,messages
+from django.contrib import auth, messages
 
 # Create your views here.
 def signup(request):
@@ -32,3 +32,31 @@ def signup(request):
   else:
     form = UserRegistrationForm()
   return render(request, 'accounts/signup.html', {'form': form})
+
+# >PROFILE PAGE VIEW
+def profile(request):
+  user = get_object_or_404(User, id=request.user.id)
+  args = {}
+  try:
+    allTickets = Ticket.objects.all()
+    tickets = Ticket.objects.filter(user=user)
+    comments = Comment.objects.filter(user=user)
+    votes = UpVote.objects.filter(user=user)
+    args['alltickets'] = allTickets
+    args['tickets'] = tickets
+    args['comments'] = comments
+    args['votes'] = votes
+  except Exception as e:
+    pass
+
+  if user.stripe_id:
+    customer = stripe.Customer.retrieve(user.stripe_id)
+    if customer.subscriptions.total_count > 0 and customer.subscriptions.data[0].status == 'active':
+      args['status'] = True
+    else:
+      args['status'] = False
+    return render(request, 'accounts/profile.html',args)
+  else:
+    args['status'] = False
+    return render(request, 'accounts/profile.html',args)
+

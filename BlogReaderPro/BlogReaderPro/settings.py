@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'crispy_forms',
 ]
 
+AUTH_USER_MODEL = 'accounts.User'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         # 'rest_framework.permissions.IsAuthenticated',

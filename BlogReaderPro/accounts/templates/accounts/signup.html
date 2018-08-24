@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+  <div class="accounts row">
+    <div id="messages"></div>
+    <form id="signup-form" class="col-12" role="form" method="post" action="{% url 'accounts:signup' %}">
+      <div id="credit-card-errors" style="display:none">
+        <div class="alert-message block-message error" id="stripe-error-message"></div>
+      </div>
+      <h2>Create a new account</h2>
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Signup</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+{% block aux %}
+{% endblock %}

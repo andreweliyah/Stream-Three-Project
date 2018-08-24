@@ -8,12 +8,13 @@ from django.http import HttpResponse
 import json
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
-from django.conf.settings import AUTH_USER_MODEL as User
 from django.utils import timezone
 from django.core import serializers
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+User = settings.AUTH_USER_MODEL
 
 # Create your views here.
 

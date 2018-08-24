@@ -3,8 +3,11 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.utils import timezone
-from devenv.settings import AUTH_USER_MODEL as User
+from django.conf import settings
+# from settings import AUTH_USER_MODEL as User
 from tinymce.models import HTMLField
+
+User = settings.AUTH_USER_MODEL
 
 class Post(models.Model):
   author = models.ForeignKey(User,blank=True)

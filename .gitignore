@@ -1,1 +1,2 @@
 *.pyc
+/BlogReaderPro/db.sqlite3

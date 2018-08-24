@@ -15,6 +15,9 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.views.static import serve
+from django.conf import settings
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -27,4 +30,5 @@ urlpatterns = [
     url(r'^api-account', include('accounts.api.urls')),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^api-blog/', include('blog.api.urls')),
+    url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]

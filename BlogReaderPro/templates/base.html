@@ -49,7 +49,7 @@
             </div>
           </div>
         {% else %}
-          <a class="btn btn-outline-primary mx-2" href="">Login</a>
+          <a class="btn btn-outline-primary mx-2" href="{% url 'accounts:login' %}">Login</a>
           <a class="btn btn-outline-danger mx-2" href="{% url 'accounts:signup' %}">Sign up</a>
         {% endif %}
       </nav>

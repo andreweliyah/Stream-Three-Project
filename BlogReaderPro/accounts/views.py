@@ -3,11 +3,14 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse
-from accounts.forms import UserRegistrationForm
+from accounts.forms import UserRegistrationForm, UserLoginForm
 from .models import User
 from django.contrib import auth, messages
+from django.contrib.auth.decorators import login_required
+from django.template.context_processors import csrf
 
 # Create your views here.
+# >signup page view
 def signup(request):
   if request.user.is_authenticated:
     return redirect(reverse('accounts:profile'))
@@ -33,7 +36,27 @@ def signup(request):
     form = UserRegistrationForm()
   return render(request, 'accounts/signup.html', {'form': form})
 
-# >PROFILE PAGE VIEW
+# >profile page view
+@login_required(login_url='accounts:login')
+# >LOGIN PAGE VIEW
+def login(request):
+  if request.user.is_authenticated:
+    return redirect(reverse('accounts:profile'))
+  if request.method == 'POST':
+    form = UserLoginForm(request.POST)
+    if form.is_valid():
+      user = auth.authenticate(username=request.POST.get('email'), password=request.POST.get('password'))
+      if user is not None:
+        auth.login(request, user)
+        messages.success(request, 'You are now signed in')
+        return redirect(reverse('accounts:profile'))
+      else:
+        messages.error(request, 'Your email or password is incorrect')
+  else:
+    form = UserLoginForm()
+  args = {'form':form}
+  args.update(csrf(request))
+  return render(request, 'accounts/login.html', args)
 def profile(request):
   user = get_object_or_404(User, id=request.user.id)
   args = {}
@@ -60,8 +83,28 @@ def profile(request):
     args['status'] = False
     return render(request, 'accounts/profile.html',args)
 
-# >LOGOUT
+# >logout page view
 def logout(request):
   auth.logout(request)
   messages.success(request, 'You have successfully logged out')
   return redirect(reverse('accounts:signup'))
+
+# >login page view
+def login(request):
+  if request.user.is_authenticated:
+    return redirect(reverse('accounts:profile'))
+  if request.method == 'POST':
+    form = UserLoginForm(request.POST)
+    if form.is_valid():
+      user = auth.authenticate(username=request.POST.get('email'), password=request.POST.get('password'))
+      if user is not None:
+        auth.login(request, user)
+        messages.success(request, 'You are now signed in')
+        return redirect(reverse('accounts:profile'))
+      else:
+        messages.error(request, 'Your email or password is incorrect')
+  else:
+    form = UserLoginForm()
+  args = {'form':form}
+  args.update(csrf(request))
+  return render(request, 'accounts/login.html', args)

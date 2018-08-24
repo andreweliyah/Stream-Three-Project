@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block auxmenu %}
+  {% if user.is_authenticated and user.is_staff %}
+    <div class="container d-flex justify-content-end">
+      <a class="btn btn-outline-success mx-2 my-2" href="{% url 'blog:newpost' %}">New Post</a>
+    </div>
+  {% endif %}
+{% endblock %}
+{% block content %}  
+  <div class="container blog">
+    <div class="row">
+      {% if posts %}
+        {% for post in posts %}
+          <div class="blog-list-item col-12">
+            {% if post.image %}
+              <img class="featured-img mx-auto " src="{{post.image.url}}" alt="image" style="display: block; max-width:400px; max-height:400px; width: auto; height: auto;">
+            {% endif %}
+            <div class="p-2 text-center">
+              <h2>{{post.title}}</h2>
+              <p class="meta-data"><strong>Author: </strong>{{post.author}} <strong>Date: </strong> {{post.published_date}}</p>
+              <p>{{ post.content|striptags|truncatewords:40 }}</p>
+              <a class="btn btn-primary" href="{% url 'blog:postdetail' id=post.id %}" role="button">View Post <span>| {{post.views}}</span></a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="blog-list-item col-12">
+            <h2 class="text-center">There are currently no posts to read, Sorry 😞.</h2>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

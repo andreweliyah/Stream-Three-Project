@@ -45,7 +45,7 @@
             <div class="list-group list-group-flush justify-content-center d-flex">
               <a class="list-group-item list-group-item-action text-center" href="{% url 'accounts:profile' %}">Profile</a>
               <a class="list-group-item list-group-item-action text-center" href="">Settings</a>
-              <a class="list-group-item list-group-item-action text-center" href="">Logout</a>
+              <a class="list-group-item list-group-item-action text-center" href="{% url 'accounts:logout' %}">Logout</a>
             </div>
           </div>
         {% else %}

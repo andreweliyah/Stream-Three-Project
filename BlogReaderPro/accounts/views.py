@@ -60,3 +60,8 @@ def profile(request):
     args['status'] = False
     return render(request, 'accounts/profile.html',args)
 
+# >LOGOUT
+def logout(request):
+  auth.logout(request)
+  messages.success(request, 'You have successfully logged out')
+  return redirect(reverse('accounts:signup'))

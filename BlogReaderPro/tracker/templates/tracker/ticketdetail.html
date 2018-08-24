@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Issue # {{ ticket.id }}{% endblock %}
+{% load crispy_forms_tags %}
+{% block auxmenu %}
+  {% if user.is_authenticated %}
+    <a class="nav-item btn btn-outline-success mx-2" href="{% url 'tracker:form'%}">New Ticket</a>
+  {% endif %}
+{% endblock %}
+{% block content %}
+  <h1>Ticket# {{ ticket.id }}</h1>
+  <p>by <strong>{{ ticket.user }}</strong></p>
+
+  {% if user.is_authenticated  %}
+    {% if ticket.type == 'BUG' or ticket.type == 'FEATURE' and user.subscription %}
+    <form id='vote' action="/api-tracker/vote/" method="POST">
+      <input name="ticket" type="text" value="{{ ticket.id }}" hidden />
+      <input name="user" type="text" value="{{ user.id }}" hidden />  
+      <button class="btn btn-success">upvote {{ ticket.votes }}</button>
+    </form>
+    {% else %}
+    <button class="btn btn-success" disabled>upvote {{ ticket.votes }}</button>
+    <p>You are a free member.</p>
+    <p>You must be a paid member to vote on a 'FEATURE'.</p>
+    {% endif %}
+  {% endif %}
+
+  <h2 class="mt-5">Type</h2>
+  <p>{{ ticket.type }}</p>
+
+  <h2 class="mt-5">Description</h2>
+  <p>{{ ticket.description }}</p>
+
+  {% if comments %}
+    <h2 class="mt-5">Comments</h2>
+    <ul id="commentlist" class="list-unstyled">
+      {% for comment in comments %}
+        <li id="{{comment.id}}"class="media border p-2 my-2">
+          <div class="media-body">
+            <p class="lead">{{ comment.user }} <span>{{ comment.submitted }}</span>:</p>
+            {{ comment.comment }}
+          </div>
+        </li>
+      {% endfor %} 
+    </ul>
+  {% endif %}
+
+  {% if user.is_authenticated  %}
+    {% if ticket.type == 'BUG' or ticket.type == 'FEATURE' and user.subscription %}
+    <h2 class="mt-5">Add a Comment</h2>
+    <form id="commentform" action="/api-tracker/comment/?format=json" method="POST">
+      <input type="text" name="ticket" value="{{ ticket.id }}" hidden>
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button class="btn btn-success">Comment</button>
+    </form>
+    {% else %}
+    <button class="btn btn-success" disabled>Comment</button>
+    {% endif %}
+  {% endif %}
+  <input id='user' type="text" value="{{user}}" hidden>
+{% endblock %}
+
+{% block aux %}
+   <script>
+    $('form#commentform').submit(function(e){
+      e.preventDefault();
+      $.ajax({
+        url: '/api-tracker/comment/?format=json',
+        type: 'POST',
+        dataType: 'json',
+        data: $(this).serialize(),
+        success: function(response) {
+          console.log(response);
+          var ele = $(`<li id="`+response.id+`"class="media border p-2 my-2">
+              <div class="media-body">
+                <p class="lead">`+$('#user').val()+` <span>just now</span>:</p>
+                `+response.comment+`
+              </div>
+            </li>`);
+          $('#commentlist').append(ele);
+          $('#id_comment').val('')
+        }
+      })
+      return false;
+    });
+  
+    $('form#vote').submit(function(e){
+      e.preventDefault();
+      $.ajax({
+        url: '/api-tracker/vote/',
+        type: 'post',
+        data: $(this).serialize()
+      })
+      .always(function() { 
+        window.location.reload(true);
+      });
+    });
+  </script>
+{% endblock %}

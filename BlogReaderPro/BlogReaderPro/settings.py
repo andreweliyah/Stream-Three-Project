@@ -20,13 +20,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'z5za%rd0e%8lqly9rct@7k#p74u++u23b@@b&l&c4&@65)y3x5'
+SECRET_KEY = '(+h5@fvk4!*s_1xs!va73_#en%ox(tqa(go$#df3l++e@(b(gh'
+
+# Stripe environment variables
+STRIPE_PUBLISHABLE = os.getenv('STRIPE_PUBLISHABLE', '<add your key>')
+STRIPE_SECRET = os.getenv('STRIPE_SECRET', '<add your key>')
+
+DEV_TRACKER_PLAN = '<plan>'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
-
+ 
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 
@@ -37,13 +42,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tinymce',
+    'rest_framework',
+    'rest_framework_docs',
     'blog',
     'accounts',
     'tracker',
+    'corsheaders',
     'crispy_forms',
-    'rest_framework',
-    'rest_framework_docs',
+    # 'disqus',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -102,20 +116,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'BlogReaderPro.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'devtracker',
         'USER': 'root',
         # 'PASSWORD': 'root',
-        'HOST': 'localhost',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

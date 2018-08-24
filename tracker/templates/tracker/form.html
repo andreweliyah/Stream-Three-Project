@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Create a Ticket{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <h2 class="col-12">Submit New Ticket</h2>
+    <form id="ticketform" class="col-12" action="{% url 'trackerapi:ticket' %}" method="POST">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button class="btn btn-success">Submit</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block aux %}
+  <script>
+    $('form#ticketform').submit(function(e){
+      e.preventDefault();
+      $.ajax({
+        url: '/api-tracker/ticket/?format=json',
+        type: 'post',
+        dataType: 'json',
+        data: $(this).serialize()
+      })
+      .done(function(data,data2,data3) {   
+        window.location.assign('/tracker/ticket-'+data.id+'/')
+      });
+    });
+  </script>
+{% endblock %}

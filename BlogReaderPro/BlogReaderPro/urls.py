@@ -15,21 +15,24 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 from django.views.static import serve
 from django.conf import settings
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
+
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'accounts/',include('accounts.urls')),
-    url(r'^docs/', include('rest_framework_docs.urls')),
-    url(r'^api-auth/', include('rest_framework.urls')),
-    url(r'^api-token-auth/', obtain_jwt_token),
-    url(r'^api-token-refresh/', refresh_jwt_token),
-    url(r'^api-token-verify/', verify_jwt_token),
-    url(r'^api-account', include('accounts.api.urls')),
-    url(r'^tinymce/', include('tinymce.urls')),
-    url(r'^api-blog/', include('blog.api.urls')),
-    url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    url(r'^', include('tracker.urls')),
+  url(r'^admin/', admin.site.urls),
+  url(r'accounts/',include('accounts.urls')),
+  url(r'^', include('tracker.urls')),
+  url(r'^blog/', include('blog.urls')),
+  url(r'^docs/', include('rest_framework_docs.urls')),
+  url(r'^api-auth/', include('rest_framework.urls')),
+  url(r'^api-token-auth/', obtain_jwt_token),
+  url(r'^api-token-refresh/', refresh_jwt_token),
+  url(r'^api-token-verify/', verify_jwt_token),
+  url(r'^api-account', include('accounts.api.urls')),
+  url(r'^api-tracker/', include('tracker.api.urls')),
+  url(r'^api-blog/', include('blog.api.urls')),
+  url(r'^tinymce/', include('tinymce.urls')),
+  url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),   
 ]

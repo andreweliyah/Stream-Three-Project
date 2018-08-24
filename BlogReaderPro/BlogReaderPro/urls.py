@@ -19,4 +19,10 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'accounts/',include('accounts.urls')),
+    url(r'^docs/', include('rest_framework_docs.urls')),
+    url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^api-token-auth/', obtain_jwt_token),
+    url(r'^api-token-refresh/', refresh_jwt_token),
+    url(r'^api-token-verify/', verify_jwt_token),
+    url(r'^api-account', include('accounts.api.urls')),
 ]

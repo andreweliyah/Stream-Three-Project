@@ -3,19 +3,17 @@
 {% load static %}
 {% block content %}
   <div class="accounts row">
-    <div id="messages"></div>
-    <form id="signup-form" class="col-12" role="form" method="post" action="{% url 'accounts:signup' %}">
+    <form id="auth-form" class="col-12">
       <div id="credit-card-errors" style="display:none">
         <div class="alert-message block-message error" id="stripe-error-message"></div>
       </div>
-      <h2>Create a new account</h2>
+      <h2>{{ title }}</h2>
+      <div id="messages" class="text-danger"></div>
       {% csrf_token %}
       {{ form|crispy }}
       <div class="form-group">
-        <button type="submit" class="btn btn-primary">Signup</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
       </div>
     </form>
   </div>
-{% endblock %}
-{% block aux %}
 {% endblock %}

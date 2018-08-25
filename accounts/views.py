@@ -14,54 +14,27 @@ import stripe
 
 
 # Create your views here.
-# >SIGNUP PAGE VIEW
+# >signup page view
 def signup(request):
   if request.user.is_authenticated:
     return redirect(reverse('accounts:profile'))
-  if request.method == 'POST':
-    form = UserRegistrationForm(request.POST)
-    if form.is_valid():
-      try:
-        user = User.objects.get(email=request.POST.get('email'))
-        if user:
-          messages.error(request, "This email is already in use. Try logging in instead.")
-          return redirect(reverse('accounts:signup'))
-      except User.DoesNotExist as e:
-        # raise e
-        form.save()
-        user = auth.authenticate(username=request.POST.get('email'), password=request.POST.get('password1'))
-        if user:
-          auth.login(request, user)
-          messages.success(request, "You have successfully registered")
-          return redirect(reverse('accounts:profile'))
-        else:
-          messages.error(request, 'Sorry there was a problem logging you in. Please try again later.')
-  else:
-    form = UserRegistrationForm()
-  return render(request, 'accounts/signup.html', {'form': form})
 
-# >LOGIN PAGE VIEW
+  form = UserRegistrationForm()
+  return render(request, 'accounts/form.html', {'form': form, 'title': 'Create New Account'})
+
+# >login page view
 def login(request):
   if request.user.is_authenticated:
     return redirect(reverse('accounts:profile'))
-  if request.method == 'POST':
-    form = UserLoginForm(request.POST)
-    if form.is_valid():
-      user = auth.authenticate(username=request.POST.get('email'), password=request.POST.get('password'))
-      if user is not None:
-        auth.login(request, user)
-        messages.success(request, 'You are now signed in')
-        return redirect(reverse('accounts:profile'))
-      else:
-        messages.error(request, 'Your email or password is incorrect')
-  else:
-    form = UserLoginForm()
+
+  form = UserLoginForm()
   args = {'form':form}
   args.update(csrf(request))
-  return render(request, 'accounts/login.html', args)
+  args['title'] = 'Login'
+  return render(request, 'accounts/form.html', args)
 
-# >PROFILE PAGE VIEW
-@login_required(login_url='accounts:login') # User must be logged in to view this page
+# >profile page view
+@login_required(login_url='accounts:login') 
 def profile(request):
   user = get_object_or_404(User, id=request.user.id)
   args = {}
@@ -87,12 +60,6 @@ def profile(request):
   else:
     args['status'] = False
     return render(request, 'accounts/profile.html',args)
-
-# >LOGOUT
-def logout(request):
-  auth.logout(request)
-  messages.success(request, 'You have successfully logged out')
-  return redirect(reverse('accounts:login'))
 
 # >payments
 @csrf_exempt
@@ -312,13 +279,13 @@ def cancel_subscription(request):
   return redirect('accounts:profile')
 
 # >settings pageview
+@login_required(login_url='accounts:login')
 def settings(request):
   return render(request, 'accounts/settings.html')
 
 # >settings pageview
 def delete(request):
   user = get_object_or_404(User, id=request.user.id)
-  
   try:
     if user.stripe_id:
       customer = stripe.Customer.retrieve(user.stripe_id)

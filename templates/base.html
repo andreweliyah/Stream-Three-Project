@@ -1,4 +1,4 @@
-
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -12,12 +12,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="https://js.stripe.com/v3/"></script>
+   
     {% block auxheader %}{% endblock %}
     
   </head>
   <body>
     <header class="site-header d-flex flex-column flex-md-row align-items-center p-3 px-md-4">
-      <h1 class="my-0 mr-md-auto font-weight-normal"><a class="brand" href="">Blog Reader Pro</a></h1>
+      <h1 class="my-0 mr-md-auto font-weight-normal"><a class="brand" href="/">Blog Reader Pro</a></h1>
       <nav class="d-flex flex-column flex-md-row align-items-center my-2 my-md-0 mr-md-3">
         
         <a class="nav-item p-2 text-dark" href="{% url 'blog:postlist' %}">Blog</a>
@@ -31,7 +32,10 @@
             <div class="list-group list-group-flush justify-content-center d-flex">
               <a class="list-group-item list-group-item-action text-center" href="{% url 'accounts:profile' %}">Profile</a>
               <a class="list-group-item list-group-item-action text-center" href="{% url 'accounts:settings' %}">Settings</a>
-              <a class="list-group-item list-group-item-action text-center" href="{% url 'accounts:logout' %}">Logout</a>
+              <form id='auth-form'>
+                {% csrf_token %}
+                <button class="list-group-item list-group-item-action text-center" href="{% url 'accountsapi:auth' %}">Logout</button>
+              </form>
             </div>
           </div>
         {% else %}
@@ -63,6 +67,7 @@
         </div>
       </div>
     </footer>
+     <script src="{% static 'accounts/js/accounts-auth.js'%}"></script>
     {% block aux %}{% endblock %}    
   </body>
 </html>

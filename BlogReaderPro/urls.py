@@ -24,7 +24,7 @@ urlpatterns = [
   url(r'^admin/', admin.site.urls),
   url(r'accounts/',include('accounts.urls')),
   url(r'^', include('tracker.urls')),
-  # url(r'^tracker/', include('tracker.urls')),
+  url(r'^tracker/', include('tracker.urls')),
   url(r'^blog/', include('blog.urls')),
   url(r'^docs/', include('rest_framework_docs.urls')),
   url(r'^api-auth/', include('rest_framework.urls')),

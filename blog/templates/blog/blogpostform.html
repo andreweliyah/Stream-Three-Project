@@ -1,54 +1,20 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% load staticfiles %}
-{% block auxheader %}
-  <script src="{% static 'js/tinymce/tinymce.min.js' %}"></script>
-  <script>
-  tinyMCE.init({
-      mode : "textareas",
-      theme : "modern"
-  });
-  </script>
-{% endblock %}
 {% block content %}
   <div class="blog">
     <h1>New Post</h1>
-    <form id="postform" method="POST" enctype="multipart/form-data">
+    <form id="postform" method="{% if id %}PUT{% else %}POST{% endif %}" enctype="multipart/form-data">
+      {% if id %}
+        <input type="number" name='id' value="{{ id }}" hidden>
+      {% endif %}
       {% csrf_token %}
       {{ form|crispy }}
+      <div id="messages" class="text-danger"></div>
       <button type="submit" class="btn btn-info">Save</button>
     </form>
   </div>
 {% endblock %}
 {% block aux %}
-  <script>
-    $('form#postform').submit(function(e){
-      e.preventDefault();})
-    $('form#postform').submit(function(e){
-      e.preventDefault();
-      var trying = 0;
-      var retries = 3
-      var retry = setInterval(function(){
-        var data = new FormData($('form#postform')[0]);
-        $.ajax({
-          url: '/api-blog/?format=json',
-          type: 'post',
-          cache: false,
-          enctype: 'multipart/form-data',
-          contentType: false,
-          processData: false,
-          dataType: 'json',
-          data: data
-        })
-        .always(function(data,status,data3) {
-          trying++; 
-          if(status == 'success' || trying >= retries){
-            window.location.assign('/blog/post-'+data.id+'/')
-            clearInterval(retry); 
-          }
-         
-        });
-      },1000); 
-    });
-  </script>
+  <script src="{% static 'blog/js/blog.js'%}"></script>
 {% endblock %}

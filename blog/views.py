@@ -23,19 +23,9 @@ def post_detail(request, id):
 @login_required(login_url='accounts:login')
 def new_post(request):
   # only staff can make blog posts
-  # if not request.user.is_staff:
-  #   return redirect('blog:postlist')
-
-  if request.method == "POST":
-    form = BlogPostForm(request.POST, request.FILES)
-    if form.is_valid():
-      post = form.save(commit=False)
-      post.author = request.user
-      post.published_date = timezone.now()
-      post.save()
-      return redirect('blog:postdetail', post.pk)
-  else:
-    form = BlogPostForm()
+  if not request.user.is_staff:
+    return redirect('blog:postlist')
+  form = BlogPostForm()
   return render(request, 'blog/blogpostform.html', {'form': form})
 
 # >edit_post
@@ -44,16 +34,6 @@ def edit_post(request, id):
   # only staff can make blog posts
   if not request.user.is_staff:
     return redirect('blog:postlist')
-    
   post = get_object_or_404(Post, pk=id)
-  if request.method == "POST":
-    form = BlogPostForm(request.POST, request.FILES, instance=post)
-    if form.is_valid():
-      post = form.save(commit=False)
-      post.author = request.user
-      post.published_date = timezone.now()
-      post.save()
-      return redirect('blog:postdetail', post.pk)
-  else:
-    form = BlogPostForm(instance=post)
-  return render(request, 'blog/blogpostform.html', {'form': form})
+  form = BlogPostForm(instance=post)
+  return render(request, 'blog/blogpostform.html', {'form': form, 'id':id})

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block auxmenu %}
   {% if user.is_authenticated and user.is_staff %}
     <div class="container d-flex justify-content-end">
@@ -6,7 +7,6 @@
     </div>
   {% endif %}
 {% endblock %}
-  
 {% block content %}
   <div class="row blog">
     <div class="container blog-detail">
@@ -15,23 +15,20 @@
           {% if post.image %}
             <img class="featured-img col-12 mx-auto" src="/media/{{ post.image }}" style="display: block; max-width:400px; max-height:400px; width: auto; height: auto;">
           {% endif %}
-          <div>
-            <p class="text-center">post by {{post.author}}</p>
-          </div>
           <h2 class="text-center">{{ post.title }}</h2>
-          <p class="meta-data text-center">{{ post.published_date }} | <strong>Views</strong> {{ post.views }} | <strong>Tag</strong> {{ post.tag }}</p>
+          <p class="meta-data text-center">post by <strong>{{post.author}}</strong> on {{ post.published_date }} | <strong>Views</strong> {{ post.views }} | <strong>Tag</strong> {{ post.tag }}</p>
           {{ post.content|striptags|linebreaks }}
           <p class="text-center">
             <a class="btn btn-outline-primary" href='{% url "blog:postlist" %}'">Back To Blog</a>
             {% if user.is_authenticated and user == post.author %}
             <a class="btn btn-outline-primary" href="{% url 'blog:editpost' post.id %}">Edit</a>
             <button id="del_post_btn" class="btn btn-outline-danger" post.id %}'">Delete</button>
-            <form id="del_post_confirm" style="display: none;" method="POST">
+            <form id="del_post_confirm" style="display: none;">
               {% csrf_token %}
               <div>
                 <p><strong>Caustion</strong>: Are you sure you want to delete this post?</p>
-                <button id='del_no'>No</button>
-                <button id='del_yes'>Yes</button>
+                <button id='del_no' class="btn btn-success">No</button>
+                <button id='del_yes' class="btn btn-danger">Yes</button>
               </div>
             </form>
             {% endif %}
@@ -42,67 +39,5 @@
   </div>
 {% endblock %}
 {% block aux %}
-  <script>
-    // Delete Account
-    $('#del_post_btn').click(function(e) {
-      // Show account delete confirmation
-      e.preventDefault();
-      $('#del_post_confirm').show();
-    });
-
-    $('#del_no').click(function(e) {
-      // Cancel account deletion and hide confirm section
-      e.preventDefault();
-      $('#del_post_confirm').hide();
-    });
-
-    $('#del_yes').click(function(e) {
-      e.preventDefault();
-      var trying = 0;
-      var retries = 3
-      var retry = setInterval(function(){
-        var id = document.location.pathname.split('-')[1].split('/')[0];
-        $.ajax({
-          url: '/api-blog/',
-          type: 'delete',
-          data: {id: id}
-        })
-        .always(function(data,status,data3) {
-          trying++; 
-          if(status == 'success' || trying >= retries){
-            window.location.assign('/blog/')
-            clearInterval(retry); 
-          }
-        });
-      },1000);
-    });
-
-    $('form#postform').submit(function(e){
-      e.preventDefault();})
-    $('form#postform').submit(function(e){
-      e.preventDefault();
-      var trying = 0;
-      var retries = 3
-      var retry = setInterval(function(){
-        var data = new FormData($('form#postform')[0]);
-        $.ajax({
-          url: '/api-blog/?format=json',
-          type: 'post',
-          cache: false,
-          enctype: 'multipart/form-data',
-          contentType: false,
-          processData: false,
-          dataType: 'json',
-          data: data
-        })
-        .always(function(data,status,data3) {
-          trying++; 
-          if(status == 'success' || trying >= retries){
-            window.location.assign('/blog/post-'+data.id+'/')
-            clearInterval(retry); 
-          }
-        });
-      },1000); 
-    });
-  </script>
+  <script src="{% static 'blog/js/blog.js' %}"></script>
 {% endblock %}

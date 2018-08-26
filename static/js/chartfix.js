@@ -106,33 +106,35 @@ $(function() {
     onPageClick: pagerdata,
     onInit: pagerdata
   });
-    function pagerdata(pageNumber, event){
-      if(!pageNumber){
-        pageNumber = 1;
-      }  
-      $.get('http://127.0.0.1:8000/api-tracker/ticket/?page='+pageNumber)
-      .done(tableSetup)
-    }
-    function tableSetup(data){
-      var truncate = 20
-      // console.log(data)
-      $('.manual-add').remove();
-      data.forEach(function(d){
-        var row =  `<tr class="dc-table-row manual-add">
-          <td class="dc-table-column _0">`+d.id+`</td>
-          <td class="dc-table-column _1">`+d.type+`</td>
-          <td class="dc-table-column _2">`+d.status+`</td>`;
-          if(d.description.length>truncate){
-            row += `<td class="dc-table-column _3">`+d.description.substring(0,truncate)+` ...</td>`;
-          }
-          else{
-            row += `<td class="dc-table-column _3">`+d.description+`</td>`;
-          }
-          
-          row += `<td class="dc-table-column _4">`+d.votes+`</td>
-          <td class="dc-table-column _4"><a href="/tracker/ticket-`+d.id+`/">Go to Ticket</a></td>
-        </tr>`;
-        $('#all_data').append(row);
-      })
-    }
+
+  function pagerdata(pageNumber, event){
+    if(!pageNumber){
+      pageNumber = 1;
+    }  
+    $.get('/api-tracker/ticket/?page='+pageNumber)
+    .done(tableSetup)
+  }
+
+  function tableSetup(data){
+    var truncate = 20
+    // console.log(data)
+    $('.manual-add').remove();
+    data.forEach(function(d){
+      var row =  `<tr class="dc-table-row manual-add">
+        <td class="dc-table-column _0">`+d.id+`</td>
+        <td class="dc-table-column _1">`+d.type+`</td>
+        <td class="dc-table-column _2">`+d.status+`</td>`;
+        if(d.description.length>truncate){
+          row += `<td class="dc-table-column _3">`+d.description.substring(0,truncate)+` ...</td>`;
+        }
+        else{
+          row += `<td class="dc-table-column _3">`+d.description+`</td>`;
+        }
+        
+        row += `<td class="dc-table-column _4">`+d.votes+`</td>
+        <td class="dc-table-column _4"><a href="/tracker/ticket-`+d.id+`/">Go to Ticket</a></td>
+      </tr>`;
+      $('#all_data').append(row);
+    })
+  }
 });

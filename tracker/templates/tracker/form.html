@@ -9,6 +9,7 @@
     <form id="ticketform" class="col-12" action="{% url 'trackerapi:ticket' %}" method="POST">
       {% csrf_token %}
       {{ form|crispy }}
+      <div id="messages" class="text-danger"></div>
       <button class="btn btn-success">Submit</button>
     </form>
   </div>
@@ -26,7 +27,11 @@
       })
       .done(function(data,data2,data3) {   
         window.location.assign('/tracker/ticket-'+data.id+'/')
-      });
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+      data = jqXHR.responseJSON
+      $('#messages').text(data['detail'].toUpperCase())
+    });
     });
   </script>
 {% endblock %}

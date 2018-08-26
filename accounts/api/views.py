@@ -148,35 +148,6 @@ class UserAuthAPIView(APIView):
     user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-# class UserPaymentAPIView(APIView):
-#   def post(self, request):
-#     # pprint(repr(status))
-#     # pprint(dir(status))
-#     # return Response(status=status.HTTP_202_ACCEPTED)
-#     user = get_object_or_404(User,id=request.user.id)
-#     # try:
-#       # Create a Customer:
-#       customer = stripe.Customer.create(
-#         source=request.POST['stripeToken'],
-#         email=user.email,
-#       )
-#       # Save customer id to stripe id of user:
-#       user.stripe_id = customer.id
-#       user.save()
-#       # Charge the Customer:
-#       charge = stripe.Charge.create(
-#         amount=999,
-#         currency='usd',
-#         description='Dev Tracker Premium',
-#         customer=customer.id,
-#         statement_descriptor='Dev Tracker Subscription',
-#       )
-#     # return Response(status=status.HTTP_202_ACCEPTED)
-#     # except Exception:
-#       # pprint(repr(Exception.message))
-#       # pprint(dir(Exception.message))
-#       # print Exception.message
-#       # return Response(status=status.HTTP_429_TOO_MANY_REQUESTS)
 
       
 

@@ -9,9 +9,12 @@ from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from .models import User
+from tracker.models import Ticket, Comment, UpVote
+from django.conf import settings
 import stripe
 
+stripe.api_key = settings.STRIPE_SECRET
+devTrackerPlan = settings.DEV_TRACKER_PLAN
 
 # Create your views here.
 # >signup page view
@@ -48,7 +51,7 @@ def profile(request):
     args['comments'] = comments
     args['votes'] = votes
   except Exception as e:
-    pass
+    print e
 
   if user.stripe_id:
     customer = stripe.Customer.retrieve(user.stripe_id)

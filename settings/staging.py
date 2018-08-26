@@ -10,7 +10,8 @@ DATABASES = {
 # Stripe environment variables
 STRIPE_PUBLISHABLE = os.getenv('STRIPE_PUBLISHABLE', '<your STRIPE_PUBLISHABLE key>')
 STRIPE_SECRET = os.getenv('STRIPE_SECRET', '<your STRIPE SECRET key>')
- 
+DEV_TRACKER_PLAN = os.getenv('STRIPE_PLAN', '<your STRIPE PLAN key>')
+
 SITE_URL = 'https://blogreaderpro.herokuapp.com/'
 ALLOWED_HOSTS.append('blogreaderpro.herokuapp.com')
 ALLOWED_HOSTS.append('herokuapp.com')

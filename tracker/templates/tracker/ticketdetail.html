@@ -28,7 +28,7 @@
   <p>{{ ticket.type }}</p>
 
   <h2 class="mt-5">Description</h2>
-  <p>{{ ticket.description|striptags|linebreaks }}</p>
+  <p>{{ ticket.description|safe }}</p>
 
   {% if comments %}
     <h2 class="mt-5">Comments</h2>
@@ -37,7 +37,7 @@
         <li id="{{comment.id}}"class="media border p-2 my-2">
           <div class="media-body">
             <p class="lead">{{ comment.user }} <span>{{ comment.submitted }}</span>:</p>
-            {{ comment.comment|striptags|linebreaks }}
+            {{ comment.comment|safe }}
           </div>
         </li>
       {% endfor %} 

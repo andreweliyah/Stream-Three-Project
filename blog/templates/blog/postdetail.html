@@ -17,7 +17,7 @@
           {% endif %}
           <h2 class="text-center">{{ post.title }}</h2>
           <p class="meta-data text-center">post by <strong>{{post.author}}</strong> on {{ post.published_date }} | <strong>Views</strong> {{ post.views }} | <strong>Tag</strong> {{ post.tag }}</p>
-          {{ post.content|striptags|linebreaks }}
+          {{ post.content|safe }}
           <p class="text-center">
             <a class="btn btn-outline-primary" href='{% url "blog:postlist" %}'">Back To Blog</a>
             {% if user.is_authenticated and user == post.author %}

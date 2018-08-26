@@ -19,19 +19,34 @@
   <script>
     $('form#ticketform').submit(function(e){
       e.preventDefault();
-      $.ajax({
-        url: '/api-tracker/ticket/?format=json',
-        type: 'post',
-        dataType: 'json',
-        data: $(this).serialize()
-      })
-      .done(function(data,data2,data3) {   
-        window.location.assign('/tracker/ticket-'+data.id+'/')
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-      data = jqXHR.responseJSON
-      $('#messages').text(data['detail'].toUpperCase())
-    });
+      // data = new FormData($('form#ticketform'));
+      var trying = 0;
+      var retries = 3;
+      var retry = setInterval(function(){
+        tinyMCE.triggerSave();
+        var data = {"type": $('#id_type').val(), "description": $('#id_description').val()}
+        $.ajax({
+          url: '/api-tracker/ticket/?format=json',
+          type: 'post',
+          dataType: 'json',
+          data: data
+        })
+        .done(function(data,data2,data3) {   
+          clearInterval(retry); 
+          window.location.assign('/tracker/ticket-'+data.id+'/')
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          data = jqXHR.responseJSON
+          console.error(data.description[0])
+          $('#messages').text('You must be subcribed to submit a feature request'.toUpperCase())
+        });
+        trying++; 
+        if(trying >= retries){
+          clearInterval(retry);
+          $('#messages').text('There was an error please try again later'.toUpperCase()) 
+        }
+      },1000)
+        
     });
   </script>
 {% endblock %}

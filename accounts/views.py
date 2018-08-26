@@ -75,7 +75,7 @@ def profile(request):
 @csrf_exempt
 def payments(request):
 
-  user = get_object_or_404(User, id=18)
+  user = get_object_or_404(User, id=request.user.id)
   if user.stripe_id:
     customer = stripe.Customer.retrieve(user.stripe_id)
     if customer.subscriptions.total_count > 0:
@@ -89,6 +89,25 @@ def payments(request):
         user.subscription = True
       else:
         user.subscription = False
+  else:
+    token = request.POST['stripeToken']
+
+    customer = stripe.Customer.create(
+      source=token,
+      email=user.email,
+    )
+
+    user.stripe_id = customer.id
+   
+    subscription = stripe.Subscription.create(
+      customer=user.stripe_id,
+      items=[{'plan': devTrackerPlan}],
+    )
+  
+    if subscription.status == 'active':
+      user.subscription = True
+    else:
+      user.subscription = False
   user.save()
 
   # Refresh profile Page

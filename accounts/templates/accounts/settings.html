@@ -6,7 +6,7 @@
   <h2>Subscribe</h2>
   <p>A subscription allows you to create and vote on "FEATURES"</p>
 
-  {% if status %}
+  {% if user.subscription %}
     <form action="{% url 'accounts:cancel' %}" method="POST">
        {% csrf_token %}
       <button class="btn btn-danger">Unsubscribe</button>

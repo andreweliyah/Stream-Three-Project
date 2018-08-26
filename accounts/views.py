@@ -40,6 +40,13 @@ def login(request):
 @login_required(login_url='accounts:login') 
 def profile(request):
   user = get_object_or_404(User, id=request.user.id)
+  if user.stripe_id:
+    customer = stripe.Customer.retrieve(user.stripe_id)
+    if customer.subscriptions.total_count > 0:
+      user.subscription = True
+    else:
+      user.subscription = False
+    user.save()
   args = {}
   try:
     allTickets = Ticket.objects.all()
@@ -67,315 +74,53 @@ def profile(request):
 # >payments
 @csrf_exempt
 def payments(request):
-  # pprint(repr(request.POST))
-  user = get_object_or_404(User, id=request.user.id)
-  try:
-    #  If user is already subscribed
-    if user.stripe_id:
-      customer = stripe.Customer.retrieve(user.stripe_id)
-      if customer.subscriptions.total_count > 0 and customer.subscriptions.data[0].plan.id == devTrackerPlan:
-        return redirect(reverse('accounts:profile'))
 
-      subscription = stripe.Subscription.create(
-        customer=user.stripe_id,
-        items=[{'plan': devTrackerPlan}],
-      )
-      
-      user.sub_end = datetime.utcfromtimestamp(int(subscription.current_period_end))
+  user = get_object_or_404(User, id=18)
+  if user.stripe_id:
+    customer = stripe.Customer.retrieve(user.stripe_id)
+    if customer.subscriptions.total_count > 0:
+      user.subscription = True
     else:
-      token = request.POST['stripeToken']
-
-      customer = stripe.Customer.create(
-        source=token,
-        email=user.email,
-      )
-
-      user.stripe_id = customer.id
-     
       subscription = stripe.Subscription.create(
         customer=user.stripe_id,
         items=[{'plan': devTrackerPlan}],
       )
-    
-      if subscription.status == 'active':
+      if customer.subscriptions.total_count > 0:
         user.subscription = True
       else:
         user.subscription = False
-    user.save()
-  except stripe.error.CardError as e:
-    # Since it's a decline, stripe.error.CardError will be caught
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.RateLimitError as e:
-    # Too many requests made to the API too quickly
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.InvalidRequestError as e:
-    # Invalid parameters were supplied to Stripe's API
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.AuthenticationError as e:
-    # Authentication with Stripe's API failed
-    # (maybe you changed API keys recently)
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.APIConnectionError as e:
-    # Network communication with Stripe failed
-    body = e.json_body
-    pprint(repr(body))
-    pprint(dir(body))
-
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.StripeError as e:
-    # Display a very generic error to the user, and maybe send
-    # yourself an email
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except Exception as e:
-    # Something else happened, completely unrelated to Stripe
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
+  user.save()
 
   # Refresh profile Page
-  return redirect(reverse('accounts:profile'))
+  return redirect('accounts:profile')
 
 def cancel_subscription(request):
   if request.method == 'POST':
     user = get_object_or_404(User, id=request.user.id)
     customer = stripe.Customer.retrieve(user.stripe_id)
-    try:
+    if customer.subscriptions.total_count == 0:
+      request.user.subscription = False
+      request.user.save()
+    else:
       subscription = stripe.Subscription.retrieve(customer.subscriptions.data[0].id)
       subscription.delete()
-      user['is_active'] = False
-    except stripe.error.CardError as e:
-      # Since it's a decline, stripe.error.CardError will be caught
-      body = e.json_body
-      err  = body.get('error', {})
-
-      print "Status is: %s" % e.http_status
-      print "Type is: %s" % err.get('type')
-      print "Code is: %s" % err.get('code')
-      # param is '' in this case
-      print "Param is: %s" % err.get('param')
-      print "Message is: %s" % err.get('message')
-    except stripe.error.RateLimitError as e:
-      # Too many requests made to the API too quickly
-      body = e.json_body
-      err  = body.get('error', {})
-
-      print "Status is: %s" % e.http_status
-      print "Type is: %s" % err.get('type')
-      print "Code is: %s" % err.get('code')
-      # param is '' in this case
-      print "Param is: %s" % err.get('param')
-      print "Message is: %s" % err.get('message')
-    except stripe.error.InvalidRequestError as e:
-      # Invalid parameters were supplied to Stripe's API
-      body = e.json_body
-      err  = body.get('error', {})
-
-      print "Status is: %s" % e.http_status
-      print "Type is: %s" % err.get('type')
-      print "Code is: %s" % err.get('code')
-      # param is '' in this case
-      print "Param is: %s" % err.get('param')
-      print "Message is: %s" % err.get('message')
-    except stripe.error.AuthenticationError as e:
-      # Authentication with Stripe's API failed
-      # (maybe you changed API keys recently)
-      body = e.json_body
-      err  = body.get('error', {})
-
-      print "Status is: %s" % e.http_status
-      print "Type is: %s" % err.get('type')
-      print "Code is: %s" % err.get('code')
-      # param is '' in this case
-      print "Param is: %s" % err.get('param')
-      print "Message is: %s" % err.get('message')
-    except stripe.error.APIConnectionError as e:
-      # Network communication with Stripe failed
-      body = e.json_body
-      pprint(repr(body))
-      pprint(dir(body))
-
-      err  = body.get('error', {})
-
-      print "Status is: %s" % e.http_status
-      print "Type is: %s" % err.get('type')
-      print "Code is: %s" % err.get('code')
-      # param is '' in this case
-      print "Param is: %s" % err.get('param')
-      print "Message is: %s" % err.get('message')
-    except stripe.error.StripeError as e:
-      # Display a very generic error to the user, and maybe send
-      # yourself an email
-      body = e.json_body
-      err  = body.get('error', {})
-
-      print "Status is: %s" % e.http_status
-      print "Type is: %s" % err.get('type')
-      print "Code is: %s" % err.get('code')
-      # param is '' in this case
-      print "Param is: %s" % err.get('param')
-      print "Message is: %s" % err.get('message')
-    except Exception as e:
-      # Something else happened, completely unrelated to Stripe
-      body = e.json_body
-      err  = body.get('error', {})
-
-      print "Status is: %s" % e.http_status
-      print "Type is: %s" % err.get('type')
-      print "Code is: %s" % err.get('code')
-      # param is '' in this case
-      print "Param is: %s" % err.get('param')
-      print "Message is: %s" % err.get('message')
+      request.user.subscription = False
+      request.user.save()
       
   return redirect('accounts:profile')
 
 # >settings pageview
 @login_required(login_url='accounts:login')
 def settings(request):
-  return render(request, 'accounts/settings.html')
+  return render(request, 'accounts/settings.html',{"subscription":request.user.subscription})
 
 # >settings pageview
 def delete(request):
   user = get_object_or_404(User, id=request.user.id)
-  try:
-    if user.stripe_id:
-      customer = stripe.Customer.retrieve(user.stripe_id)
-      subscription = stripe.Subscription.retrieve(customer.subscriptions.data[0].id)
-      subscription.delete()
-    user.delete()
-  except stripe.error.CardError as e:
-    # Since it's a decline, stripe.error.CardError will be caught
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.RateLimitError as e:
-    # Too many requests made to the API too quickly
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.InvalidRequestError as e:
-    # Invalid parameters were supplied to Stripe's API
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.AuthenticationError as e:
-    # Authentication with Stripe's API failed
-    # (maybe you changed API keys recently)
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.APIConnectionError as e:
-    # Network communication with Stripe failed
-    body = e.json_body
-    pprint(repr(body))
-    pprint(dir(body))
-
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except stripe.error.StripeError as e:
-    # Display a very generic error to the user, and maybe send
-    # yourself an email
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
-  except Exception as e:
-    # Something else happened, completely unrelated to Stripe
-    body = e.json_body
-    err  = body.get('error', {})
-
-    print "Status is: %s" % e.http_status
-    print "Type is: %s" % err.get('type')
-    print "Code is: %s" % err.get('code')
-    # param is '' in this case
-    print "Param is: %s" % err.get('param')
-    print "Message is: %s" % err.get('message')
+  if user.stripe_id:
+    customer = stripe.Customer.retrieve(user.stripe_id)
+    subscription = stripe.Subscription.retrieve(customer.subscriptions.data[0].id)
+    subscription.delete()
+  user.delete()
       
   return redirect('tracker:index')

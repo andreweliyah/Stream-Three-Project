@@ -2,5 +2,97 @@
 {% load static %}
 {% block content %}
   <h2 class='text-center'>Profile Page for {{ user.username | capfirst }}</h2>
+  <hr>
+{% if not tickets and not votes and not comments %}
+  <h3 class='text-center my-5'>No Activity to Display</h2>
+{% endif %}
+  <!-- Tickets Submitted -->
+  {% if tickets %}
+    <h3>Your Tickets</h3>
+    <table class="table dc-chart border">
+      <thead>
+        <tr>
+          <th class="dc-table-head">Ticket</th>
+          <th class="dc-table-head">Type</th>
+          <th class="dc-table-head">Status</th>
+          <th class="dc-table-head">Description</th>
+          <th class="dc-table-head">Votes</th>
+          <th class="dc-table-head">Link</th>
+        </tr>
+      </thead>
+      <tbody id='all_data'>
+        {% for ticket in tickets %}
+          <tr>
+            <td>{{ticket.id}}</td>
+            <td>{{ticket.type}}</td>
+            <td>{{ticket.status}}</td>
+            <td>{{ticket.description|truncatechars:20|safe }}</td>
+            <td>{{ticket.votes}}</td>
+            <td><a href="/tracker/ticket-{{ticket.id}}">Go to Ticket</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>  
+  {% endif %}
 
+  <!-- Voting Activity -->
+  {% if votes %}
+    <h3>Tickets You Up Voted</h3>
+    <table class="table dc-chart border">
+      <thead>
+        <tr>
+          <th class="dc-table-head">Ticket</th>
+          <th class="dc-table-head">Type</th>
+          <th class="dc-table-head">Status</th>
+          <th class="dc-table-head">Description</th>
+          <th class="dc-table-head">Link</th>
+        </tr>
+      </thead>
+      <tbody id='all_data'>
+        {% for vote in votes %}
+          {% for ticket in alltickets %}
+            {% if ticket.id == vote.ticket.id %}
+            
+            <tr>
+              <td>{{ticket.id}}</td>
+              <td>{{ticket.type}}</td>
+              <td>{{ticket.status}}</td>
+              <td>{{ticket.description|truncatechars:20|safe }}</td>
+              <td><a href="/tracker/ticket-{{ticket.id}}">Go to Ticket</a></td>
+            </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+  
+  <!-- Comments Submitted -->
+  {% if comments %}
+    <h3>Your Comments</h3>
+    <table class="table dc-chart border">
+      <thead>
+        <tr>
+          <th class="dc-table-head">Ticket</th>
+          <th class="dc-table-head">Description</th>
+          <th class="dc-table-head">Comment</th>
+          <th class="dc-table-head">Link</th>
+        </tr>
+      </thead>
+      <tbody id='all_data'>
+        {% for comment in comments %}
+          {% for ticket in alltickets %}
+            {% if ticket.id == comment.ticket.id %}
+              <tr>
+                <td>{{ticket.id}}</td>
+                <td>{{ticket.description|truncatechars:20|safe }}</td>
+                <td>{{comment.comment|truncatechars:20|safe }}</td>
+                <td><a href="/tracker/ticket-{{ticket.id}}#{{comment.id}}">Go to Comment</a></td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
 {% endblock %}

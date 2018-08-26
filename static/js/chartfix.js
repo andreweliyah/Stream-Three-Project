@@ -110,7 +110,7 @@ $(function() {
       if(!pageNumber){
         pageNumber = 1;
       }  
-      $.get('/api-tracker/ticket/?page='+pageNumber)
+      $.get('http://127.0.0.1:8000/api-tracker/ticket/?page='+pageNumber)
       .done(tableSetup)
     }
     function tableSetup(data){

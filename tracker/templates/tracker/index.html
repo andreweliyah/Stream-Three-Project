@@ -12,7 +12,7 @@
     <h2>Welcome to DevTracker</h2>
     
     {% if tickets %}
-    <h1 class="my-5">Stats for Nerds</h1>
+    <h2 class="my-5">Stats for Nerds</h2>
     <div class="row">
       <!-- number display -->
       <div id="avg" class="col-12 col-md-6">
@@ -64,6 +64,8 @@
         {% endif %}
       </div> 
     </div>
+    {% else %}
+    <h2 class="text-center">There are currently no posts to read, Sorry 😞.</h2>
     {% endif %}
   </div>
 {% endblock %}

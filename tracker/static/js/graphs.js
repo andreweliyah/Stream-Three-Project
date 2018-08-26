@@ -1,6 +1,7 @@
 'use strict';
 
 d3.json('/api-tracker/ticket/').then(function(masterdata){ 
+  console.log(masterdata)
   var truncate = 20
   if(masterdata.length!==0){
     // fix color scheme error
@@ -52,7 +53,7 @@ d3.json('/api-tracker/ticket/').then(function(masterdata){
         active.push(d);
       }
     });
-
+    console.log(activeFeatures)
     // sort data by votes
     activeFeatures.sort(function(a,b){
       if(a.votes > b.votes){
@@ -136,6 +137,7 @@ d3.json('/api-tracker/ticket/').then(function(masterdata){
         .label(function (d) {
           return d.key+': '+Math.floor(d.value*100/completeTickets.length)+'%'
         })
+        .filter = function() {};
     }
     else{
       $('#type-complete,#avg').hide();
@@ -143,11 +145,12 @@ d3.json('/api-tracker/ticket/').then(function(masterdata){
      
 
     // >top 5 voted features
-    var ndx2 = crossfilter(activeFeatures);
-    var ticketsByTypeFeature = ndx2.dimension(dc.pluck('type'));
-    ticketsByTypeFeature.filter('FEATURE');
-    var featureVoteChart = dc.dataTable('#vote-feature');
-    featureVoteChart
+    if(activeFeatures.length != 0){
+      var ndx2 = crossfilter(activeFeatures);
+      var ticketsByTypeFeature = ndx2.dimension(dc.pluck('type'));
+      ticketsByTypeFeature.filter('FEATURE');
+      var featureVoteChart = dc.dataTable('#vote-feature');
+      featureVoteChart
       .dimension(ticketsByTypeFeature)
       .group(function(d){
         return 'TOP 5 '+d.type+'S';
@@ -164,14 +167,19 @@ d3.json('/api-tracker/ticket/').then(function(masterdata){
       })
       .order(d3.descending)
       .size(5);
+    }
+    else{
+      $('#vote-feature').text('There are currently no active features')
+    }
+      
 
-
-    // >top 5 voted bugs
-    var ndx3 = crossfilter(activeBugs);
-    var ticketsByTypeBug = ndx3.dimension(dc.pluck('type'));
-    ticketsByTypeBug.filter('BUG');
-    var bugVoteChart = dc.dataTable('#vote-bug');
-    bugVoteChart
+    if(activeBugs.length != 0){
+      // >top 5 voted bugs
+      var ndx3 = crossfilter(activeBugs);
+      var ticketsByTypeBug = ndx3.dimension(dc.pluck('type'));
+      ticketsByTypeBug.filter('BUG');
+      var bugVoteChart = dc.dataTable('#vote-bug');
+      bugVoteChart
       .dimension(ticketsByTypeBug)
       .group(function(d){
         return 'TOP 5 '+d.type+'S';
@@ -188,6 +196,10 @@ d3.json('/api-tracker/ticket/').then(function(masterdata){
       })
       .order(d3.descending)
       .size(5);
+    }
+    else{
+      $('#vote-bug').text('There are currently no active bugs')
+    } 
 
 
     

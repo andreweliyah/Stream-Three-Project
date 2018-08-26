@@ -11,13 +11,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core import serializers
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-# from rest_framework.permissions import IsAdminUser
-# from rest_framework import permissions
-# from pprint import pprint
-
-
 class TicketAPI(APIView):
-  permission_classes = (IsAuthenticatedOrReadOnly,)
   def get(self,request):
     if request.GET.has_key('page'):
       index = int(request.GET.get('page')) * 10
@@ -32,10 +26,9 @@ class TicketAPI(APIView):
     return Response(serialized_data,status=status.HTTP_200_OK)
 
   def post(self, request):
-    print request.POST
     user = get_object_or_404(User, id=request.user.id)
-    # if request.POST.get('type') == 'FEATURE' and not user.subscription:
-    #   return Response(status=status.HTTP_402_PAYMENT_REQUIRED)
+    if request.POST.get('type') == 'FEATURE' and not user.subscription:
+      return Response(status=status.HTTP_402_PAYMENT_REQUIRED)
     serializer = TicketModelSerializer(data=request.data)
     if not serializer.is_valid():
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -56,8 +49,8 @@ class VoteAPI(APIView):
     ticket = get_object_or_404(Ticket, id=request.POST.get('ticket'))
     user = get_object_or_404(User, id=request.user.id)
 
-    # if ticket.type == 'FEATURE' and not user.subscription:
-    #   return Response(status=status.HTTP_402_PAYMENT_REQUIRED)
+    if ticket.type == 'FEATURE' and not user.subscription:
+      return Response(status=status.HTTP_402_PAYMENT_REQUIRED)
 
     serializer = UpVoteModelSerializer(data=request.data)
     if not serializer.is_valid():
@@ -80,24 +73,19 @@ class VoteAPI(APIView):
 
 class CommentAPI(APIView):
   def post(self, request):
-    print request.POST
-    # user = get_object_or_404(User, id=request.user.id)
-    # if ticket.type == 'FEATURE' and not user.subscription:
-    #   return Response(status=status.HTTP_402_PAYMENT_REQUIRED)
+    print request.data
+    user = get_object_or_404(User, id=request.user.id)
+    ticket = ticket = get_object_or_404(Ticket,id=request.data['ticket'])
+    if ticket.type == 'FEATURE' and not user.subscription:
+      return Response(status=status.HTTP_402_PAYMENT_REQUIRED)
 
     serializer = CommentModelSerializer(data=request.data)
     if not serializer.is_valid():
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
       data = serializer.data
-      user = get_object_or_404(User, id=request.user.id)
-      # comment = Comment.objects.filter(ticket=data['ticket'], user=user)
-      # pprint(dir(vote))
-      # print vote.count()      
-      ticket = ticket = get_object_or_404(Ticket,id=data['ticket'])
-      
+      user = get_object_or_404(User, id=request.user.id)    
       comment = Comment.objects.create(ticket=ticket,comment=data['comment'],user=user)
-      # comment.save()
       return Response(CommentModelSerializer(comment).data,status=status.HTTP_200_OK)
 
   def put(self, request):

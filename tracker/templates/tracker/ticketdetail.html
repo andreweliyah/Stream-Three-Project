@@ -28,7 +28,7 @@
   <p>{{ ticket.type }}</p>
 
   <h2 class="mt-5">Description</h2>
-  <p>{{ ticket.description }}</p>
+  <p>{{ ticket.description|striptags|linebreaks }}</p>
 
   {% if comments %}
     <h2 class="mt-5">Comments</h2>
@@ -37,7 +37,7 @@
         <li id="{{comment.id}}"class="media border p-2 my-2">
           <div class="media-body">
             <p class="lead">{{ comment.user }} <span>{{ comment.submitted }}</span>:</p>
-            {{ comment.comment }}
+            {{ comment.comment|striptags|linebreaks }}
           </div>
         </li>
       {% endfor %} 
@@ -47,7 +47,7 @@
   {% if user.is_authenticated  %}
     {% if ticket.type == 'BUG' or ticket.type == 'FEATURE' and user.subscription %}
     <h2 class="mt-5">Add a Comment</h2>
-    <form id="commentform" action="/api-tracker/comment/?format=json" method="POST">
+    <form id="commentform" method='POST'>
       <input type="text" name="ticket" value="{{ ticket.id }}" hidden>
       {% csrf_token %}
       {{ form|crispy }}
@@ -64,25 +64,41 @@
    <script>
     $('form#commentform').submit(function(e){
       e.preventDefault();
-      $.ajax({
-        url: '/api-tracker/comment/?format=json',
-        type: 'POST',
-        dataType: 'json',
-        data: $(this).serialize(),
-        success: function(response) {
-          console.log(response);
-          var ele = $(`<li id="`+response.id+`"class="media border p-2 my-2">
-              <div class="media-body">
-                <p class="lead">`+$('#user').val()+` <span>just now</span>:</p>
-                `+response.comment+`
-              </div>
-            </li>`);
-          $('#commentlist').append(ele);
-          $('#id_comment').val('')
+      var trying = 0;
+      var retries = 3
+      var retry = setInterval(function(){
+        var data = new FormData($('form#commentform')[0]);
+        $.ajax({
+          url: '/api-tracker/comment/?format=json',
+          cache: false,
+        enctype: 'multipart/form-data',
+        contentType: false,
+        processData: false,
+          type: 'POST',
+          dataType: 'json',
+          data: data,
+          success: function(response) {
+            console.log(response);
+            var ele = $(`<li id="`+response.id+`"class="media border p-2 my-2">
+                <div class="media-body">
+                  <p class="lead">`+$('#user').val()+` <span>just now</span>:</p>
+                  `+response.comment+`
+                </div>
+              </li>`);
+            $('#commentlist').append(ele);
+            tinyMCE.activeEditor.setContent('');
+            clearInterval(retry);
+          }
+        })
+        trying++; 
+        if(trying >= retries){
+          clearInterval(retry);
+          $('#messages').text('There was an error please try again later'.toUpperCase()) 
         }
-      })
-      return false;
-    });
+      },1000);
+      
+    })
+        
   
     $('form#vote').submit(function(e){
       e.preventDefault();

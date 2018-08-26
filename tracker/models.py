@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from tinymce.models import HTMLField
 User = settings.AUTH_USER_MODEL
 
 # Create your models here.
@@ -17,7 +18,7 @@ class Ticket(models.Model):
     ),
     default='BUG'
   )
-  description = models.TextField()
+  description = HTMLField()
   status = models.CharField(
     max_length = 5,
     choices = (
@@ -38,7 +39,7 @@ class Ticket(models.Model):
 # >Comment
 class Comment(models.Model):
   ticket = models.ForeignKey('Ticket')
-  comment = models.TextField()
+  comment = HTMLField()
   user = models.ForeignKey(User,unique=False,blank=True)
   submitted = models.DateField(auto_now_add=True)
 

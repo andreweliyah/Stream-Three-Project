@@ -78,14 +78,7 @@
           dataType: 'json',
           data: data,
           success: function(response) {
-            console.log(response);
-            var ele = $(`<li id="`+response.id+`"class="media border p-2 my-2">
-                <div class="media-body">
-                  <p class="lead">`+$('#user').val()+` <span>just now</span>:</p>
-                  `+response.comment+`
-                </div>
-              </li>`);
-            $('#commentlist').append(ele);
+            window.location.reload(true)
             tinyMCE.activeEditor.setContent('');
             clearInterval(retry);
           }

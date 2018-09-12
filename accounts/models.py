@@ -20,11 +20,18 @@ class AccountUserManager(UserManager):
                       date_joined=now, **extra_fields)
     user.set_password(password)
     user.save(using=self._db)
-
+    
     return user
  
 class User(AbstractUser): 
-  stripe_id = models.CharField(max_length=40, null=True, default='')
-  subscription = models.BooleanField(default=False)
-  sub_end = models.DateField(null=True)
+  stripe_id = models.CharField(max_length=40, null=True)
+  subscription = models.CharField(max_length=40,null=True)
+  STATUS_CHOICES = (
+    ('ACTIVE', 'active'),
+    ('CANCELED', 'canceled'),
+  )
+  status = models.CharField(max_length=8, choices=STATUS_CHOICES, default="canceled")
+  sub_end = models.IntegerField(null=True)
+  # jwt = models.CharField(null=True) # store jwt in database for better access
   objects = AccountUserManager()
+

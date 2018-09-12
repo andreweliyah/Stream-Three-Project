@@ -13,15 +13,30 @@ from ..forms import UserRegistrationForm, UserLoginForm
 from django.db import IntegrityError
 from django.conf import settings
 from django.contrib import auth
+from datetime import datetime
 from pprint import pprint
 
 stripe.api_key = settings.STRIPE_SECRET
+devTrackerPlan = settings.DEV_TRACKER_PLAN
+
+def subscribe(request):
+  subscription = stripe.Subscription.create(
+    customer=request.user.stripe_id,
+    items=[{'plan': devTrackerPlan}],
+  )
+  return subscription
+
+def createCustomer(request):
+  customer = stripe.Customer.create(
+    source=request.POST['stripeToken'],
+    email=request.user.email,
+  )
+  return customer
 
 # >user auth managment
 class UserAuthAPIView(APIView):
-  permission_classes = ()
+  # permission_classes = ()
   def post(self, request):
-    # print request.data['email']
     try:
       # >>Signup
       form = UserRegistrationForm(request.POST)
@@ -33,12 +48,15 @@ class UserAuthAPIView(APIView):
       else:
         # >>login
         form = UserLoginForm(request.POST)
+
         if form.is_valid():
+          user = User.get_object_or_404(username=request.POST.get('email'))
+          user.is_active = True
           user = auth.authenticate(username=request.POST.get('email'), password=request.POST.get('password'))
           if user is not None:
             auth.login(request, user)
           else:
-            return Response({'detail':'invalid email and/or password'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail':'invalid email and/or password'}, status=status.HTTP_400_BAD_REQUEST)
         else:
           # >>logout
           if request.user.is_authenticated():
@@ -109,8 +127,6 @@ class UserAuthAPIView(APIView):
       except stripe.error.APIConnectionError as e:
         # Network communication with Stripe failed
         body = e.json_body
-        pprint(repr(body))
-        pprint(dir(body))
 
         err  = body.get('error', {})
 
@@ -148,7 +164,62 @@ class UserAuthAPIView(APIView):
     user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+class PaymentAPIView(APIView):
+  def post(self, request):
+    print('Hello World')
+    token = request.POST['stripeToken']
 
+    # Does user have a stripe ID?
+    if request.user.stripe_id: # If yes...
+      print('I have a stripe id')
+      try:
+        print('Getting customer info')
+        customer = stripe.Customer.retrieve(request.user.stripe_id)
+        if  customer.deleted:
+          print('Creating new customer')
+          customer = createCustomer(request)
+      except:
+        # If stripe_id is deleted then create a new one
+        print('do something else')
+        # print(customer)
+        
+
+    else: # If not...
+      print('I don\'t have a stripe id')
+
+      # Create new customer for user
+      customer = createCustomer(request) 
       
+    # Update stripe id to user instance
+    request.user.stripe_id = customer.id
+    request.user.save()
 
+    # Subscribe
+    subscription = subscribe(request)
+    request.user.subscription = subscription.id
+    request.user.sub_end = subscription.current_period_end
+    request.user.status = subscription.status
+    request.user.save()
+    return Response(status=status.HTTP_202_ACCEPTED)
+
+    
   
+  def delete(self, request):
+    try:
+      # does user have a valid subscription?
+      subscription = stripe.Subscription.retrieve(request.user.subscription)
+      print('This is the subscription')
+      subscription.delete()
+      request.user.status = 'canceled'
+      request.user.subscription = None
+      request.user.sub_end = None
+      request.user.save()
+    except Exception as e:
+      print("ERROR")
+      print(e)
+      request.user.status = 'canceled'
+      request.user.subscription = None
+      request.user.sub_end = None
+      request.user.save()
+    return Response(status=status.HTTP_202_ACCEPTED)
+        

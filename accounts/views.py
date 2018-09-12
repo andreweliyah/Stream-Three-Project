@@ -15,6 +15,7 @@ import stripe
 
 stripe.api_key = settings.STRIPE_SECRET
 devTrackerPlan = settings.DEV_TRACKER_PLAN
+pubKey = settings.STRIPE_PUBLISHABLE
 
 # Create your views here.
 # >signup page view
@@ -40,13 +41,6 @@ def login(request):
 @login_required(login_url='accounts:login') 
 def profile(request):
   user = get_object_or_404(User, id=request.user.id)
-  if user.stripe_id:
-    customer = stripe.Customer.retrieve(user.stripe_id)
-    if customer.subscriptions.total_count > 0:
-      user.subscription = True
-    else:
-      user.subscription = False
-    user.save()
   args = {}
   try:
     allTickets = Ticket.objects.all()
@@ -71,67 +65,10 @@ def profile(request):
     args['status'] = False
     return render(request, 'accounts/profile.html',args)
 
-# >payments
-@csrf_exempt
-def payments(request):
-
-  user = get_object_or_404(User, id=request.user.id)
-  if user.stripe_id:
-    customer = stripe.Customer.retrieve(user.stripe_id)
-    if customer.subscriptions.total_count > 0:
-      user.subscription = True
-    else:
-      subscription = stripe.Subscription.create(
-        customer=user.stripe_id,
-        items=[{'plan': devTrackerPlan}],
-      )
-      if customer.subscriptions.total_count > 0:
-        user.subscription = True
-      else:
-        user.subscription = False
-  else:
-    token = request.POST['stripeToken']
-
-    customer = stripe.Customer.create(
-      source=token,
-      email=user.email,
-    )
-
-    user.stripe_id = customer.id
-   
-    subscription = stripe.Subscription.create(
-      customer=user.stripe_id,
-      items=[{'plan': devTrackerPlan}],
-    )
-  
-    if subscription.status == 'active':
-      user.subscription = True
-    else:
-      user.subscription = False
-  user.save()
-
-  # Refresh profile Page
-  return redirect('accounts:profile')
-
-def cancel_subscription(request):
-  if request.method == 'POST':
-    user = get_object_or_404(User, id=request.user.id)
-    customer = stripe.Customer.retrieve(user.stripe_id)
-    if customer.subscriptions.total_count == 0:
-      request.user.subscription = False
-      request.user.save()
-    else:
-      subscription = stripe.Subscription.retrieve(customer.subscriptions.data[0].id)
-      subscription.delete()
-      request.user.subscription = False
-      request.user.save()
-      
-  return redirect('accounts:profile')
-
 # >settings pageview
 @login_required(login_url='accounts:login')
 def settings(request):
-  return render(request, 'accounts/settings.html',{"subscription":request.user.subscription})
+  return render(request, 'accounts/settings.html',{"subscription":request.user.subscription,"pubkey":pubKey})
 
 # >settings pageview
 def delete(request):

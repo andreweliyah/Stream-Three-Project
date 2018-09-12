@@ -7,25 +7,15 @@
   <p>A subscription allows you to create and vote on "FEATURES"</p>
 
   {% if user.subscription %}
-    <form action="{% url 'accounts:cancel' %}" method="POST">
-       {% csrf_token %}
+    <form id="unsubscribe">
+      {% csrf_token %}
       <button class="btn btn-danger">Unsubscribe</button>
     </form>
     
-    {% else %}
-    <form action="/accounts/payments/" method="POST">
-      <script
-        src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-        data-key="pk_test_FrKRSDGVig99hJ3lEQzR4He4"
-        data-amount="500"
-        data-email="{{user.email}}"
-        data-name="blogreaderpro.com"
-        data-description="Subscribe"
-        data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
-        data-locale="auto"
-        data-zip-code="true">
-      </script>
-    </form>
+  {% else %}
+    <script src="https://checkout.stripe.com/checkout.js"></script>
+
+    <button id="subscribe" class="btn btn-success">Subscribe</button>
   {% endif %} 
 
   <h2>Delete Account</h2>
@@ -44,4 +34,51 @@
   </form>
 {% endblock %}
 {% block aux %}
+  <script>
+    var handler = StripeCheckout.configure({
+      key: '{{ pubkey }}',
+      image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+      locale: 'auto',
+      token: function(token) {
+        $.ajax({
+          url: '/api-account-payments/',
+          type: 'POST',
+          data: {stripeToken:token.id}
+        })
+        .done(function(data,data2,data3) {
+          window.location.reload(true);
+        });
+      }
+    });
+
+    $('#subscribe').click(function(e) {
+      // Open Checkout with further options:
+      handler.open({
+        name: 'DevCrate',
+        description: 'Blog Reader Pro - DevTracker Subscription',
+        amount: 500,
+        email: '{{user.email}}'
+      });
+      e.preventDefault();
+    });
+
+    // Close Checkout on page navigation:
+    $(window).bind('popstate', function() {
+      handler.close();
+    });
+  </script>
+  <script>
+    $('#unsubscribe').submit(function(e){
+      e.preventDefault();
+      $.ajax({
+        url: '/api-account-payments/',
+        type: 'DELETE',
+        data: $(this).serialize()
+      })
+      .done(function(data,data2,data3) {
+        // json = jQuery.parseJSON(data);   
+        window.location.reload(true);
+      });
+    });
+  </script>
 {% endblock %}

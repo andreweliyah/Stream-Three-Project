@@ -30,8 +30,12 @@ INSTALLED_APPS = [
     'tracker',
     'corsheaders',
     'crispy_forms',
-    # 'disqus',
+    'django.contrib.sites',  
+    'disqus'
 ]
+
+DISQUS_WEBSITE_SHORTNAME = 'Comments'
+SITE_ID = 1
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 

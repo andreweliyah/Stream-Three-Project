@@ -54,16 +54,7 @@ def profile(request):
   except Exception as e:
     print e
 
-  if user.stripe_id:
-    customer = stripe.Customer.retrieve(user.stripe_id)
-    if customer.subscriptions.total_count > 0 and customer.subscriptions.data[0].status == 'active':
-      args['status'] = True
-    else:
-      args['status'] = False
-    return render(request, 'accounts/profile.html',args)
-  else:
-    args['status'] = False
-    return render(request, 'accounts/profile.html',args)
+  return render(request, 'accounts/profile.html',args)
 
 # >settings pageview
 @login_required(login_url='accounts:login')

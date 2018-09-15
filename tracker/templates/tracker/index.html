@@ -1,71 +1,79 @@
 {% extends 'base.html' %}
+
 {% load static %}
+
 {% block title %}{{ tickets.count }} Tickets{% endblock %}
+
 {% block auxheader %}
   <link type="text/css" rel="stylesheet" href="{% static 'css/simplePagination.css' %}"/>
 {% endblock %}
+
 {% block auxmenu %}
   <a class="nav-item btn btn-outline-success mx-2" href="{% url 'tracker:form'%}">New Ticket</a>
 {% endblock %} 
+
 {% block content %}
   <div class="container">
-    <h2>Welcome to DevTracker</h2>
-    <p class="lead">This tracker is a place where you can come to submit bug tickets or feature tickets. Feature tickets are a request for a shiny new feature in an upcoming release of Blog Reader Pro. However, in order to submit tickets for, comment or vote on a feature, a pro subscription is required. You can subscribe to DevTracker in the settings page. Just click pay with card. Other than that have fun and get submitting.</p>
+    <h2>Welcome to the Blog Reader Pro DevTracker</h2>
+    <p class="lead">This tracker is a place where you can come to submit bug tickets or feature tickets for the Blog Reader Pro app. Feature tickets are a request for a shiny new feature in an upcoming release of Blog Reader Pro. However, in order to submit tickets for, comment or vote on a feature, a pro subscription is required. You can subscribe to DevTracker in the settings page. Just click pay with card. Other than that have fun and get submitting.</p>
+    
     {% if tickets %}
-    <h2 class="my-5">Stats for Nerds</h2>
-    <div class="row">
-      <!-- number display -->
-      <div id="avg" class="col-12 col-md-6">
-        <h2>Averages</h2>
-        <div id="day-avg" class="border text-center col-12 py-4"></div>
-        <div id="week-avg" class="border text-center col-12 py-4"></div>
-        <div id="month-avg" class="border text-center col-12 py-4"></div>
+      <h2 class="my-5">Stats for Nerds</h2>
+      <div class="row">
+
+        <!-- number display -->
+        <div id="avg" class="col-12 col-md-6">
+          <h2>Averages</h2>
+          <div id="day-avg" class="border text-center col-12 py-4"></div>
+          <div id="week-avg" class="border text-center col-12 py-4"></div>
+          <div id="month-avg" class="border text-center col-12 py-4"></div>
+        </div>
+
+        <!-- pie chart -->
+        <div id="type-complete" class="col-md-6 d-f justify-content">
+          <h3 class="col-12">Percentage of Complete Tickets by Type</h3>
+        </div>
       </div>
 
-      <!-- pie chart -->
-      <div id="type-complete" class="d-f justify-content">
-        <h3 class="col-12">Percentage of Complete Tickets by Type</h3>
+      <div class="row my-5">
+        <div class="col">
+          <h2 class="col-12">Highest Voted Features</h2>
+          <table id="vote-feature" class='table col-12 border'></table>
+        </div>
+        <div class="col">
+          <h2 class="col-12">Highest Voted Bugs</h2>
+          <table id="vote-bug" class='table col-12 border'></table>
+        </div>
       </div>
-    </div>
-    <div class="row my-5">
-      <div class="col">
-        <h2 class="col-12">Highest Voted Features</h2>
-        <table id="vote-feature" class='table col-12 border'></table>
+      <div class="row my-5">
+        <div class="col-12">
+          <h2>Full Ticket List</h2>
+          <table class="table dc-chart border">
+            <thead>
+              <tr>
+                <th class="dc-table-head">ID</th>
+                <th class="dc-table-head">Type</th>
+                <th class="dc-table-head">Status</th>
+                <th class="dc-table-head">Description</th>
+                <th class="dc-table-head">Votes</th>
+                <th class="dc-table-head">Link</th>
+              </tr>
+            </thead>
+            <tbody id='all_data'>
+              <tr class="dc-table-group">
+                <td class="dc-table-label" colspan="4">All Tickets</td>
+              </tr>
+              
+            </tbody>
+          </table>
+          {% if tickets.has_other_pages %}
+            <input id="pagercount" type="text" value="{{tickets.paginator.count}}"hidden>
+            <div id="pager"></div>
+          {% endif %}
+        </div> 
       </div>
-      <div class="col">
-        <h2 class="col-12">Highest Voted Bugs</h2>
-        <table id="vote-bug" class='table col-12 border'></table>
-      </div>
-    </div>
-    <div class="row my-5">
-      <div class="col-12">
-        <h2>Full Ticket List</h2>
-        <table class="table dc-chart border">
-          <thead>
-            <tr>
-              <th class="dc-table-head">ID</th>
-              <th class="dc-table-head">Type</th>
-              <th class="dc-table-head">Status</th>
-              <th class="dc-table-head">Description</th>
-              <th class="dc-table-head">Votes</th>
-              <th class="dc-table-head">Link</th>
-            </tr>
-          </thead>
-          <tbody id='all_data'>
-            <tr class="dc-table-group">
-              <td class="dc-table-label" colspan="4">All Tickets</td>
-            </tr>
-            
-          </tbody>
-        </table>
-        {% if tickets.has_other_pages %}
-          <input id="pagercount" type="text" value="{{tickets.paginator.count}}"hidden>
-          <div id="pager"></div>
-        {% endif %}
-      </div> 
-    </div>
     {% else %}
-    <h2 class="text-center">There are currently no posts to read, Sorry 😞.</h2>
+      <h2 class="text-center">There are currently no posts to read, Sorry 😞.</h2>
     {% endif %}
   </div>
 {% endblock %}

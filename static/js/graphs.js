@@ -1,211 +1,449 @@
 'use strict';
 
-d3.json('/api-tracker/ticket/').then(function(masterdata){ 
-  console.log(masterdata)
-  var truncate = 20
-  if(masterdata.length!==0){
-    // fix color scheme error
-    dc.config.defaultColors(d3.schemeSet1)
-   
-    // function to reformat data
-    function formatData(masterdata) {
-      var dateFormatSpecifier = '%Y-%m-%d';
-      var dateFormat = d3.timeFormat(dateFormatSpecifier);
-      var dateFormatParser = d3.timeParse(dateFormatSpecifier)
+d3.json('/api-tracker/ticket/').then(function(serverdata){
+  // >fix color scheme issues
+  dc.config.defaultColors(d3.schemeSet1)
 
-      masterdata.forEach(function(d,i){
-        
-        if(masterdata[i].description.length>truncate)
-        {
-          masterdata[i].description = masterdata[i].description.substring(0,truncate)+' ...';
-        }
-        masterdata[i].modified = dateFormatParser(masterdata[i].modified);
-        masterdata[i].link = '<a href="/tracker/ticket-'+masterdata[i].id+'/">Go to Ticket</a>';
-      });
-      return masterdata
-    }
-    
+  // >format data
+  function formatData(data,truncate) {
+    var dateFormatSpecifier = '%Y-%m-%d';
+    var dateFormat = d3.timeFormat(dateFormatSpecifier);
+    var dateFormatParser = d3.timeParse(dateFormatSpecifier)
 
-    // >formated data for all tickets
-    masterdata = formatData(masterdata);
-    
-    // >data for active tickets
-    var active = [];
-    var activeBugs = [];
-    var activeFeatures = [];
-    var completeTickets = [];
+    data.forEach(function(d,i){
+      
+      if(data[i].description.length>truncate)
+      {
+        data[i].description = data[i].description.substring(0,truncate)+' ...';
+      }
+      data[i].modified = dateFormatParser(data[i].modified);
+      data[i].link = '<a href="/tracker/ticket-'+data[i].id+'/">Go to Ticket</a>';
+    });
+    return data
+  }
 
-    // seperate the data by type and filter by status
-    masterdata.forEach(function(d){ 
-      if(d.status == 'TODO' || d.status == 'DOING'){
-        if(d.type == 'BUG'){
-          activeBugs.push(d);
-        }
-        else{
-          activeFeatures.push(d);
-        }
+  // >reduce function
+  var reduce = {
+    add: function(p, v, nf) {
+      // console.log(v)
+      // Total number of issues
+      p.total.issues++
+      
+      // total number of days
+      if(!p.days[v.modified]){
+        p.days[v.modified] = 1;
+        p.total.days++;
       }
       else{
-        completeTickets.push(d);
+        p.days[v.modified]++
       }
 
-      if(d.status == 'DONE' || d.status == 'DOING'){
-        active.push(d);
-      }
-    });
-    console.log(activeFeatures)
-    // sort data by votes
-    activeFeatures.sort(function(a,b){
-      if(a.votes > b.votes){
-        return 1
-      }
-      else if(a.votes < b.votes){
-        return -1
-      }
-      return 0
-    });
-    activeBugs.sort(function(a,b){
-      if(a.votes > b.votes){
-        return 1
-      }
-      else if(a.votes < b.votes){
-        return -1
-      }
-      return 0
-    });
-
-    // reverse sorted data so it flows in descending order
-    activeFeatures.reverse();
-    activeBugs.reverse();
-
-    // save only the top 5 tickets and trash the rest
-    activeBugs.splice(4,activeBugs.length-5)
-    activeFeatures.splice(4,activeFeatures.length-5)
-
-    // >averages section
-    if(completeTickets.length != 0){
-      var ndx = crossfilter(completeTickets);
-      var all = ndx.groupAll().reduce(reduce.add,reduce.remove,reduce.init);
-      var dayAvg = dc.numberDisplay('#day-avg');
-      dayAvg
-        .group(all)
-        .formatNumber(d3.format(".1s"))
-        .valueAccessor(function(d) {
-          return d.total.issues/d.total.days;
-         })
-        .html({
-                one:"<span>%number</span> ticket a day",
-                some:"<span>%number</span> tickets a day",
-                none:"<span>no</span> tickets whatsoever"
-              })
-
-      var weekAvg = dc.numberDisplay('#week-avg');
-      weekAvg
-        .group(all)
-        .formatNumber(d3.format(".1s"))
-        .valueAccessor(function(d) {
-          return d.total.issues/d.total.weeks;
-         })
-        .html({
-                one:"<span>%number</span> ticket a week",
-                some:"<span>%number</span> tickets a week",
-                none:"<span>no</span> tickets at all"
-              })
-
-      var monthAvg = dc.numberDisplay('#month-avg');
-      monthAvg
-        .group(all)
-        .formatNumber(d3.format(".1s"))
-        .valueAccessor(function(d) {
-          return d.total.issues/d.total.months;
-         })
-        .html({
-                one:"<span>%number</span> ticket a month",
-                some:"<span>%number</span> tickets a month",
-                none:"<span>0</span> tickets period"
-              })
-
-      // >percent of complete tickets by type
-      var featureByStatus = ndx.dimension(dc.pluck('type'))
-      var featureGroup = featureByStatus.group()
+     // Total number of weeks
+     var first = v.modified.getDate() - v.modified.getDay();
+     first = new Date(v.modified.getFullYear(),v.modified.getMonth(),first);
       
-      var typeComplete = dc.pieChart('#type-complete');
-      
-      typeComplete
-        .dimension(featureByStatus)
-        .group(featureGroup)
-        .label(function (d) {
-          return d.key+': '+Math.floor(d.value*100/completeTickets.length)+'%'
-        })
-        .filter = function() {};
-    }
-    else{
-      $('#type-complete,#avg').hide();
-    }
+     var last = first.getDate() + 6
+     last = new Date(v.modified.getFullYear(),v.modified.getMonth(),last);
      
-
-    // >top 5 voted features
-    if(activeFeatures.length != 0){
-      var ndx2 = crossfilter(activeFeatures);
-      var ticketsByTypeFeature = ndx2.dimension(dc.pluck('type'));
-      ticketsByTypeFeature.filter('FEATURE');
-      var featureVoteChart = dc.dataTable('#vote-feature');
-      featureVoteChart
-      .dimension(ticketsByTypeFeature)
-      .group(function(d){
-        return 'TOP 5 '+d.type+'S';
-      })
-      .columns([
-        'id',
-        'status',
-        'description',
-        'votes',
-        'link'
-      ])
-      .sortBy(function (d) {
-        return d.votes;
-      })
-      .order(d3.descending)
-      .size(5);
-    }
-    else{
-      $('#vote-feature').text('There are currently no active features')
-    }
+     if(!p.weeks[first+''+last]){
+        p.weeks[first+''+last] = 1;
+        p.total.weeks ++;
+      }
+      else{
+        p.weeks[first+''+last]++;
+      }
       
 
-    if(activeBugs.length != 0){
-      // >top 5 voted bugs
-      var ndx3 = crossfilter(activeBugs);
-      var ticketsByTypeBug = ndx3.dimension(dc.pluck('type'));
-      ticketsByTypeBug.filter('BUG');
-      var bugVoteChart = dc.dataTable('#vote-bug');
-      bugVoteChart
-      .dimension(ticketsByTypeBug)
-      .group(function(d){
-        return 'TOP 5 '+d.type+'S';
-      })
-      .columns([
-        'id',
-        'status',
-        'description',
-        'votes',
-        'link'
-      ])
-      .sortBy(function (d) {
-        return d.votes;
-      })
-      .order(d3.descending)
-      .size(5);
+      // Total number of months
+      first = new Date(v.modified.getFullYear(),v.modified.getMonth(),1);
+
+      last = new Date(v.modified.getFullYear(),v.modified.getMonth()+1,1);
+      
+      if(!p.months[first+''+last]){
+        p.months[first+''+last] = 1;
+        p.total.months ++;
+      }
+      else{
+        p.months[first+''+last]++;
+      }
+      
+      return p;
+    },
+    remove: function(p, v, nf) {
+      p.total['issues']--;
+      
+      if(!p.days[v.modified]){
+        p.total['days']--;
+      }
+      else{
+        p.days[v.modified]--
+      }
+      
+      // Total number of weeks
+      var first = v.modified.getDate() - v.modified.getDay();
+      first = new Date(v.modified.getFullYear(),v.modified.getMonth(),first);
+      
+      var last = first.getDate() + 6
+      last = new Date(v.modified.getFullYear(),v.modified.getMonth(),last);
+
+      if(!p.weeks[first+''+last]){
+        p.total.weeks --;
+      }
+      else{
+        p.weeks[first+''+last]--;
+      }
+      
+
+      // Total number of months
+      first = new Date(v.modified.getFullYear(),v.modified.getMonth(),1);
+
+      last = new Date(v.modified.getFullYear(),v.modified.getMonth()+1,1);
+      
+      
+      if(!p.months[first+''+last]){
+        p.total.months --;
+      }
+      else{
+        p.months[first+''+last]--;
+      }
+      return p;
+    },
+    init: function() {
+      return {
+        total:{
+          issues:0,
+          days:0,
+          weeks:0,
+          months:0
+        },
+        days:{},
+        weeks:{},
+        months:{}
+      };
+    }
+  }
+
+  // >variables
+  // >>settings
+  var offset = 0; // for pager
+  var pageLimit = 10; // for pager
+  var truncate = 20;
+  var active = []; // container for all active tickets
+  var activeBugs = []; // container for top 5 active bug tickets
+  var activeFeatures = []; // container for top 5 active feature tickets
+  var completeTickets = []; // container for all complete tickets
+
+  // >>elements
+  var statusSelectField = dc.selectMenu('#status-select');
+  var typeSelectField = dc.selectMenu('#type-select');
+  var fullDataTable = dc.dataTable('#fulllist');
+  var smallDataTable = dc.dataTable('#smalllist');
+  var idSearchField = dc.textFilterWidget('#id-field');
+  var descriptionSearchField = dc.textFilterWidget('#search-field');
+  var dayAvg = dc.numberDisplay('#day-avg');
+  var weekAvg = dc.numberDisplay('#week-avg');
+  var monthAvg = dc.numberDisplay('#month-avg');
+  var typeComplete = dc.pieChart('#type-complete');
+  var featureVoteChart = dc.dataTable('#vote-feature');
+  var featureVoteChartSmall = dc.dataTable('#vote-feature-small');
+  var bugVoteChart = dc.dataTable('#vote-bug');
+  var bugVoteChartSmall = dc.dataTable('#vote-bug-small');
+
+  // >>formated data
+  var masterdata = formatData(serverdata,truncate);
+
+  // >>crossfilters
+  var ndx = crossfilter(masterdata);
+  var ndx2;
+  var ndx3;
+  var ndx4;
+      
+  // >>crossfilter groups
+  var all = ndx.groupAll();
+  var allcomplete;
+
+  // >>dimensions
+  var typeDim = ndx.dimension(dc.pluck('type'));
+  var idDim = ndx.dimension(dc.pluck('id'));
+  var statusDim = ndx.dimension(dc.pluck('status'));
+  var desDim = ndx.dimension(dc.pluck('description'));
+  var completeStatusDim;
+  var featureTicketDim;
+  var bugTicketDim;
+
+  // >>group setup
+  var typeGroup = typeDim.group();
+  var statusGroup = statusDim.group();
+  var desGroup = desDim.group();
+  var completeStatusGroup;
+
+  // >setup active and complete tickets data
+  masterdata.forEach(function(d){ 
+    if(d.status == 'TODO' || d.status == 'DOING'){
+      if(d.type == 'BUG'){
+        activeBugs.push(d);
+      }
+      else{
+        activeFeatures.push(d);
+      }
     }
     else{
-      $('#vote-bug').text('There are currently no active bugs')
-    } 
+      completeTickets.push(d);
+    }
 
+    if(d.status == 'DONE' || d.status == 'DOING'){
+      active.push(d);
+    }
+  });
 
-    
+  // >>sort active tickts by votes
+  activeFeatures.sort(function(a,b){
+    if(a.votes > b.votes){
+      return 1
+    }
+    else if(a.votes < b.votes){
+      return -1
+    }
+    return 0
+  });
+  activeBugs.sort(function(a,b){
+    if(a.votes > b.votes){
+      return 1
+    }
+    else if(a.votes < b.votes){
+      return -1
+    }
+    return 0
+  });
+
+  // >>save only top 5 voted tickets
+  activeBugs.splice(4,activeBugs.length-5)
+  activeFeatures.splice(4,activeFeatures.length-5)
+
+  // >>arrange votes from high to low
+  activeFeatures.reverse();
+  activeBugs.reverse();
+
+  // >chart setup
+  ndx2 = crossfilter(completeTickets);
+  ndx3 = crossfilter(activeFeatures);
+  ndx4 = crossfilter(activeBugs);
+      var 
+      
+
+  allcomplete = ndx2.groupAll().reduce(reduce.add,reduce.remove,reduce.init);
+
+  completeStatusDim = ndx2.dimension(dc.pluck('type'));
+  featureTicketDim = ndx3.dimension(dc.pluck('type'));
+  bugTicketDim = ndx4.dimension(dc.pluck('type'));
+
+  completeStatusGroup = completeStatusDim.group();
+
+  featureTicketDim.filter('FEATURE');
+  bugTicketDim.filter('BUG');
+
+  // >averages
+  // >>day
+  dayAvg
+  .group(allcomplete)
+  .formatNumber(d3.format(".1s"))
+  .valueAccessor(function(d) {
+    return d.total.issues/d.total.days;
+   })
+  .html({
+    one:"<span>%number</span> ticket a day",
+    some:"<span>%number</span> tickets a day",
+    none:"<span>no</span> tickets whatsoever"
+  })
+
+  // >>week
+  weekAvg
+  .group(allcomplete)
+  .formatNumber(d3.format(".1s"))
+  .valueAccessor(function(d) {
+    return d.total.issues/d.total.weeks;
+   })
+  .html({
+    one:"<span>%number</span> ticket a week",
+    some:"<span>%number</span> tickets a week",
+    none:"<span>no</span> tickets at all"
+  })
+
+  // >>month
+  monthAvg
+  .group(allcomplete)
+  .formatNumber(d3.format(".1s"))
+  .valueAccessor(function(d) {
+    return d.total.issues/d.total.months;
+   })
+  .html({
+    one:"<span>%number</span> ticket a month",
+    some:"<span>%number</span> tickets a month",
+    none:"<span>0</span> tickets period"
+  })
+
+  // >complete pie chart
+  typeComplete
+  .dimension(completeStatusDim)
+  .radius(400)
+  .group(completeStatusGroup)
+  .label(function (d) {
+    return d.key+': '+Math.floor(d.value*100/completeTickets.length)+'%'
+  });
+
+  // >filters
+  // >>id
+  idSearchField
+  .dimension(idDim)
+  .normalize(function(s){
+    return s.toString();
+  })
+  .placeHolder('Enter ID');
+  
+  // >>type
+  typeSelectField
+  .dimension(typeDim)
+  .group(typeGroup);
+
+  // >>status
+  statusSelectField
+  .dimension(statusDim)
+  .group(statusGroup);
+  
+  // >>description search field
+  descriptionSearchField
+  .dimension(desDim);
+
+  // >data table
+  // >>full
+  fullDataTable
+  .dimension(idDim)
+  .group(function(d){
+    return 'All';
+  })
+  .columns([
+    "id",
+    "type",
+    "status",
+    "description",
+    "votes",
+    "link"
+  ]);
+
+  //>>small
+  smallDataTable
+  .dimension(idDim)
+  .group(function(d){
+    return 'All';
+  })
+  .columns([
+    "type",
+    "description",
+    "link"
+  ]); 
+
+  // >Top Voted
+  // >>feature
+  // >>>full
+  featureVoteChart
+  .dimension(featureTicketDim)
+  .group(function(d){
+    return 'TOP 5 '+d.type+'S';
+  })
+  .columns([
+    'id',
+    'status',
+    'description',
+    'votes',
+    'link'
+  ])
+  .sortBy(function (d) {
+    return d.votes;
+  })
+  .order(d3.descending)
+  .size(5);
+
+  // >>>small
+  featureVoteChartSmall
+  .dimension(featureTicketDim)
+  .group(function(d){
+    return 'TOP 5 '+d.type+'S';
+  })
+  .columns([
+    'type',
+    'description',
+    'link'
+  ])
+  .sortBy(function (d) {
+    return d.votes;
+  })
+  .order(d3.descending)
+  .size(5);
+
+  // >>bug
+  // >>>full
+  bugVoteChart
+  .dimension(bugTicketDim)
+  .group(function(d){
+    return 'TOP 5 '+d.type+'S';
+  })
+  .columns([
+    'id',
+    'status',
+    'description',
+    'votes',
+    'link'
+  ])
+  .sortBy(function (d) {
+    return d.votes;
+  })
+  .order(d3.descending)
+  .size(5);
+
+  // >>>small
+  bugVoteChartSmall
+  .dimension(bugTicketDim)
+  .group(function(d){
+    return 'TOP 5 '+d.type+'S';
+  })
+  .columns([
+    'type',
+    'description',
+    'link'
+  ])
+  .sortBy(function (d) {
+    return d.votes;
+  })
+  .order(d3.descending)
+  .size(5);
+                            
+  dc.renderAll();
+  $( window ).resize(function() {
     dc.renderAll();
-  }
-  else{
-    $('main').html('<h2>No Data Avaiable</h2>');
-  }
+  });
+
+  // >pager setup
+  $('#pager').pagination({
+    items: masterdata.length,
+    itemsOnPage: pageLimit,
+    cssStyle: 'light-theme',
+    onPageClick: pagerdata,
+    onInit: pagerdata
+  });
+  function pagerdata(pageNumber, event){
+    if(!pageNumber){
+      pageNumber = 1;
+      fullDataTable
+      .beginSlice(offset)
+      .endSlice(offset+pageLimit);
+    }
+    else{
+      offset = pageNumber * pageLimit - pageLimit
+      fullDataTable
+      .beginSlice(offset)
+      .endSlice(offset+pageLimit);
+    }  
+    
+    fullDataTable.redraw()
+  };
 });

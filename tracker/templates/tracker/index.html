@@ -20,9 +20,11 @@
     {% if tickets %}
       <h3 class="my-5">Stats for Nerds</h3>
       <div class="row">
-
         <!-- number display -->
+
         <div id="avg" class="col-12 col-md-6">
+          <h3>Total Tickets</h3>
+          <div id="number" class="col-12 border text-center py-4"></div>
           <h3>Averages</h3>
           <div id="day-avg" class="border text-center col-12 py-4"></div>
           <div id="week-avg" class="border text-center col-12 py-4"></div>
@@ -30,53 +32,62 @@
         </div>
 
         <!-- pie chart -->
-        <div id="type-complete" class="col-12 col-md-6 w-75 mx-auto">
+        <div id="type-complete" class="col-12 col-md-6 mx-auto">
           <h3 class="col-12">Percentage of Complete Tickets by Type</h3>
         </div>
       </div>
       
       <div class="row">
         <!-- search by id -->
-        <div id="id-field" class="text-center col-12 col-sm-6 col-lg-3 py-4">
-          <h3 class="col-12">Search id</h3>
+        <div id="id-field" class="text-center col-12 col-sm-6 col-md-3 py-4">
+          <h3 class="col-12">Id</h3>
         </div>
 
         <!-- select by type -->
-        <div id="type-select" class="text-center col-12 col-sm-6 col-lg-3 py-4">
-          <h3 class="col-12">Sort by Type</h3>
+        <div id="type-select" class="text-center col-12 col-sm-6 col-md-3 py-4">
+          <h3 class="col-12">Type</h3>
         </div>
 
         <!-- Select by status -->
-        <div id="status-select" class="text-center col-12 col-sm-6 col-lg-3 py-4">
-          <h3>Sort by Status</h3>
+        <div id="status-select" class="text-center col-12 col-sm-6 col-md-3 py-4">
+          <h3>Status</h3>
         </div>
 
         <!-- search by description -->
-        <div id="search-field" class="text-center col-12 col-sm-6 col-lg-3 py-4">
-          <h3 class="col-12">Search Description</h3>
+        <div id="search-field" class="text-center col-12 col-sm-6 col-md-3 py-4">
+          <h3 class="col-12">Description</h3>
         </div>
       </div>
 
       <div class="row">
         <!-- All Tickets list -->
-        <table id="fulllist" class="table border d-none d-md-table"></table>
-        <table id="smalllist" class="table d-table d-md-none"></table>
-        <div id="pager"></div>
-
-        <div class="row my-5">
-          <div class="col">
-            <h3 class="col-12">Highest Voted Features</h3>
-            <table id="vote-feature" class='table col-12 border d-none d-md-table'></table>
-            <table id="vote-feature-small" class='table col-12 d-table d-md-none'></table>
-          </div>
-          <div class="col">
-            <h3 class="col-12">Highest Voted Bugs</h3>
-            <table id="vote-bug" class='table col-12 border d-none d-md-table '></table>
-            <table id="vote-bug-small" class='table col-12 d-table d-md-none'></table>
-          </div>
-        </div>
+        <h3>All Tickets</h3>
+        <table id="fulllist" class="table col-12 border d-none d-md-table"></table>
+        <table id="smalllist" class="table col-12 d-table d-md-none"></table>
+        <div id="pager"></div>        
       </div>
-      
+      <!-- <div class="row"> -->
+        <div class="row my-5">
+          <div class="col-6 px-0">
+            <table id="vote-feature" class='table col-12 border d-none d-lg-table'>
+              <h3 class="d-none d-lg-table">Highest Voted Features</h3>
+            </table>
+          </div>
+          <div class="col-6 px-0">
+            <table id="vote-bug" class='table col-12  border d-none d-lg-table '>
+              <h3 class="d-none d-lg-table">Highest Voted Bugs</h3>
+            </table>
+          </div>
+            
+
+          <table id="vote-feature-small" class='table col-12 d-table d-lg-none'>
+            <h3 class="d-table d-lg-none">Highest Voted Features</h3>
+          </table>
+          <table id="vote-bug-small" class='table col-12 d-table d-lg-none'>
+            <h3 class="d-table d-lg-none">Highest Voted Bugs</h3>
+          </table>
+        </div>
+      <!-- </div> -->
 
       
     {% else %}

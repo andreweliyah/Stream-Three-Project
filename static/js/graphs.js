@@ -134,6 +134,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   var completeTickets = []; // container for all complete tickets
 
   // >>elements
+  var number = dc.numberDisplay('#number');
   var statusSelectField = dc.selectMenu('#status-select');
   var typeSelectField = dc.selectMenu('#type-select');
   var fullDataTable = dc.dataTable('#fulllist');
@@ -227,9 +228,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   // >chart setup
   ndx2 = crossfilter(completeTickets);
   ndx3 = crossfilter(activeFeatures);
-  ndx4 = crossfilter(activeBugs);
-      var 
-      
+  ndx4 = crossfilter(activeBugs);      
 
   allcomplete = ndx2.groupAll().reduce(reduce.add,reduce.remove,reduce.init);
 
@@ -416,6 +415,29 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   })
   .order(d3.descending)
   .size(5);
+
+  number
+  .group(all)
+  .formatNumber(d3.format(""))
+  .valueAccessor(function(d) {
+    fullDataTable
+    .beginSlice(0)
+    .endSlice(pageLimit);
+    $(function() {
+      $('#pager').pagination('updateItems', d);
+      $('#pager').pagination('selectPage', 1);
+      // fullDataTable.redraw();
+      fullDataTable
+      .beginSlice(0)
+      .endSlice(pageLimit);
+    });
+    return d
+   })
+  .html({
+    one:"<span>%number</span> ticket",
+    some:"<span>%number</span> tickets",
+    none:"<span>0</span> tickets"
+  })
                             
   dc.renderAll();
   $( window ).resize(function() {
@@ -430,7 +452,9 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     onPageClick: pagerdata,
     onInit: pagerdata
   });
+
   function pagerdata(pageNumber, event){
+    console.log(pageNumber)
     if(!pageNumber){
       pageNumber = 1;
       fullDataTable
@@ -443,7 +467,6 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
       .beginSlice(offset)
       .endSlice(offset+pageLimit);
     }  
-    
     fullDataTable.redraw()
   };
 });

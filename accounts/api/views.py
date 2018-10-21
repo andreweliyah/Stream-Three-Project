@@ -35,7 +35,7 @@ def createCustomer(request):
 
 # >user auth managment
 class UserAuthAPIView(APIView):
-  # permission_classes = ()
+  permission_classes = ()
   def post(self, request):
     try:
       # >>Signup
@@ -50,7 +50,7 @@ class UserAuthAPIView(APIView):
         form = UserLoginForm(request.POST)
 
         if form.is_valid():
-          user = User.get_object_or_404(username=request.POST.get('email'))
+          user = get_object_or_404(User,username=request.POST.get('email'))
           user.is_active = True
           user = auth.authenticate(username=request.POST.get('email'), password=request.POST.get('password'))
           if user is not None:
@@ -67,7 +67,7 @@ class UserAuthAPIView(APIView):
       return Response({'detail':'user exists'},status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
       print e
-      return Response({'detail':'unknown error'},status=status.HTTP_400_BAD_REQUEST)
+      return Response({'detail':'Error. Please check your login information.'},status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_202_ACCEPTED)
 
   def delete(self, request):

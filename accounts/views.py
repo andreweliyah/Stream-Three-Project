@@ -23,8 +23,27 @@ def signup(request):
   if request.user.is_authenticated:
     return redirect(reverse('accounts:profile'))
 
-  form = UserRegistrationForm()
-  return render(request, 'accounts/form.html', {'form': form, 'title': 'Create New Account'})
+  if request.method == 'POST':
+    form = UserRegistrationForm(request.POST)
+    if form.is_valid():
+      try:
+        user = form.save()
+        user = auth.authenticate(username=request.POST.get('email'),
+                                 password=request.POST.get('password1'))
+        if user:
+          auth.login(request, user)
+          messages.success(request, "You have successfully registered")
+          response = HttpResponse()
+
+          return redirect(reverse('accounts:profile'))
+        else:
+          messages.error(request, "We were unable to log you in at this time")
+        
+      except stripe.error.CardError, e:
+              messages.error(request, "Your card was declined!")
+  else:
+    form = UserRegistrationForm()
+    return render(request, 'accounts/form.html', {'form': form, 'title': 'Create New Account'})
 
 # >login page view
 def login(request):

@@ -74,4 +74,9 @@ $(function() {
       $('#messages').text(data['Detail'].toUpperCase())
     })
   })
+
+  if(RegExp(/^\/accounts\/signup\//).test(window.location.pathname) || RegExp(/^\/accounts\/login\//).test(window.location.pathname)){
+      document.cookie = "csrftoken=''; path=/; expires=Fri, 1 May 1970 23:59:59 GMT"
+      document.cookie = "jwtoken=''; path=/; max-age=0; expires=Fri, 1 May 1970 23:59:59 GMT"
+  }
 });

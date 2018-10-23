@@ -29,6 +29,8 @@
 
   <h2 class="mt-5">Description</h2>
   <p>{{ ticket.description|safe }}</p>
+
+  <h2 class="mt-5">Comments</h2>
   {% if ticket.type == 'BUG' or ticket.type == 'FEATURE' and user.subscription %}
     <div id="disqus_thread"></div>
   {% endif %}
@@ -54,38 +56,7 @@
 {% endblock %}
 
 {% block aux %}
-   <script>
-    $('form#commentform').submit(function(e){
-      e.preventDefault();
-      var trying = 0;
-      var retries = 3
-      var retry = setInterval(function(){
-        var data = new FormData($('form#commentform')[0]);
-        $.ajax({
-          url: '/api-tracker/comment/?format=json',
-          cache: false,
-        enctype: 'multipart/form-data',
-        contentType: false,
-        processData: false,
-          type: 'POST',
-          dataType: 'json',
-          data: data,
-          success: function(response) {
-            window.location.reload(true)
-            tinyMCE.activeEditor.setContent('');
-            clearInterval(retry);
-          }
-        })
-        trying++; 
-        if(trying >= retries){
-          clearInterval(retry);
-          $('#messages').text('There was an error please try again later'.toUpperCase()) 
-        }
-      },1000);
-      
-    })
-        
-  
+   <script>  
     $('form#vote').submit(function(e){
       e.preventDefault();
       $.ajax({

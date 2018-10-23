@@ -37,13 +37,15 @@
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
           data = jqXHR.responseJSON
-          console.error(data.description[0])
-          $('#messages').text('You must be subcribed to submit a feature request'.toUpperCase())
+          // console.error(errorThrown)
+          if(errorThrown == "Payment Required"){
+            $('#messages').text('You must be subcribed to submit a feature request'.toUpperCase())
+          }
         });
         trying++; 
         if(trying >= retries){
           clearInterval(retry);
-          $('#messages').text('There was an error please try again later'.toUpperCase()) 
+          // $('#messages').text('There was an error please try again later'.toUpperCase()) 
         }
       },1000)
         

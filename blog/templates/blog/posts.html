@@ -28,7 +28,8 @@
                 <br>
                 <strong>Date: </strong> {{post.published_date}} 
                 <br> 
-                <a href="{% url 'blog:postdetail' id=post.id %}#disqus_thread" role="button">0 Comments</a>
+                <span class="disqus-comment-count" data-disqus-url="{% url 'blog:postdetail' id=post.id %}" data-disqus-identifier="{% url 'blog:postdetail' id=post.id %}" role="button">comments</span>
+                <a class="" href="{% url 'blog:postdetail' id=post.id %}&#disqus_thread" data-disqus-identifier="{% url 'blog:postdetail' id=post.id %}">vies</a>
               </p>
               <a class="btn btn-primary" href="{% url 'blog:postdetail' id=post.id %}" role="button">View Post <span>| {{post.views}}</span></a>
             </div>
@@ -41,5 +42,6 @@
       {% endif %}
     </div>
   </div>
-  <script id="dsq-count-scr" src="//blogreaderpro.disqus.com/count.js" async></script>
+  <!-- <script id="dsq-count-scr" src="//blog-comment.disqus.com/count.js"></script> -->
+  <!-- <script id="dsq-count-scr" src="//blog-comment.disqus.com/count.js" async></script> -->
 {% endblock %}

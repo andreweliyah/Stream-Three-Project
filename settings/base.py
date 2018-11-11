@@ -1,4 +1,5 @@
 import os, datetime
+import cloudinary
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,12 +35,20 @@ INSTALLED_APPS = [
     'cloudinary',
 ]
 
-DISQUS_WEBSITE_SHORTNAME = 'Comments'
+# Stripe environment variables
+STRIPE_PUBLISHABLE = os.getenv('STRIPE_PUBLISHABLE', '<your STRIPE_PUBLISHABLE key>')
+STRIPE_SECRET = os.getenv('STRIPE_SECRET', '<your STRIPE SECRET key>')
+DEV_TRACKER_PLAN = os.getenv('STRIPE_PLAN', '<your STRIPE PLAN key>')
+
+DISQUS_WEBSITE_SHORTNAME = os.getenv('DISQUS_WEBSITE_SHORTNAME', '<your disqus website shortname>')
+DISQUS_API_KEY = os.getenv('DISQUS_API_KEY', '<your disqus api key>')
+
 cloudinary.config( 
   cloud_name = os.getenv('cloud_name', '<your cloud_name>'),
   api_key = os.getenv('api_key', '<your api_key>'),
   api_secret = os.getenv('api_secret', '<your api_secret>'),
 )
+
 SITE_ID = 1
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

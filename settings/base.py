@@ -14,7 +14,6 @@ SECRET_KEY = '<SECRET_KEY>'
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,10 +30,16 @@ INSTALLED_APPS = [
     'corsheaders',
     'crispy_forms',
     'django.contrib.sites',  
-    'disqus'
+    'disqus',
+    'cloudinary',
 ]
 
 DISQUS_WEBSITE_SHORTNAME = 'Comments'
+cloudinary.config( 
+  cloud_name = os.getenv('cloud_name', '<your cloud_name>'),
+  api_key = os.getenv('api_key', '<your api_key>'),
+  api_secret = os.getenv('api_secret', '<your api_secret>'),
+)
 SITE_ID = 1
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

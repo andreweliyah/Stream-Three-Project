@@ -4,6 +4,7 @@
 {% load disqus_tags %}
 {% set_disqus_title post.title %}
 {% disqus_show_comments %}
+{% load cloudinary %}
 {% block auxmenu %}
   {% if user.is_authenticated and user.is_staff %}
     <div class="container d-flex justify-content-end">
@@ -17,7 +18,7 @@
       <div class="row">
         <div class="col-12 d-f justify-content-center">
           {% if post.image %}
-            <img class="featured-img col-12 mx-auto" src="/media/{{ post.image }}" style="display: block; max-width:400px; max-height:400px; width: auto; height: auto;">
+            <img class="featured-img col-12 mx-auto" src="{{post.image.url}}" style="display: block; max-width:400px; max-height:400px; width: auto; height: auto;">
           {% endif %}
           <h2 class="text-center mt-3">{{ post.title }}</h2>
           <p class="meta-data text-center lead">post by <strong>{{post.author}}</strong> on {{ post.published_date }} | <strong>Views</strong> {{ post.views }} | <strong>Tag</strong> {{ post.tag }}</p>
@@ -49,7 +50,7 @@
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     
     var disqus_config = function () {
-      this.page.url = window.location.url;  // Replace PAGE_URL with your page's canonical URL variable
+      // this.page.url = window.location.url;  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = window.location.pathname; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     

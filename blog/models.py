@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 # from settings import AUTH_USER_MODEL as User
 from tinymce.models import HTMLField
+from cloudinary.models import CloudinaryField
 
 User = settings.AUTH_USER_MODEL
 
@@ -17,7 +18,8 @@ class Post(models.Model):
   published_date = models.DateTimeField(blank=True, null=True)
   views = models.IntegerField(default=0)
   tag = models.CharField(max_length=30, blank=True, null=True)
-  image = models.ImageField(upload_to="images", blank=True, null=True)
+  # image = models.ImageField(upload_to="images", blank=True, null=True)
+  image = CloudinaryField('image', blank=True, null=True)
 
   # def snippet(self):
   #   return self.content[:50] + '...'

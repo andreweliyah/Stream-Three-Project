@@ -2,6 +2,8 @@
 
 {% load staticfiles %}
 
+{% load cloudinary %}
+
 {% block title %}Blog{% endblock %}
 
 {% block auxmenu %}
@@ -28,8 +30,7 @@
                 <br>
                 <strong>Date: </strong> {{post.published_date}} 
                 <br> 
-                <span class="disqus-comment-count" data-disqus-url="{% url 'blog:postdetail' id=post.id %}" data-disqus-identifier="{% url 'blog:postdetail' id=post.id %}" role="button">comments</span>
-                <a class="" href="{% url 'blog:postdetail' id=post.id %}&#disqus_thread" data-disqus-identifier="{% url 'blog:postdetail' id=post.id %}">vies</a>
+                <a class="disqus-comment-count" href="{% url 'blog:postdetail' id=post.id %}" data-disqus-identifier="{% url 'blog:postdetail' id=post.id %}">0 Comments</a>
               </p>
               <a class="btn btn-primary" href="{% url 'blog:postdetail' id=post.id %}" role="button">View Post <span>| {{post.views}}</span></a>
             </div>

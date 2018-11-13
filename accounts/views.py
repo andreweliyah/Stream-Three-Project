@@ -12,6 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 from tracker.models import Ticket, Comment, UpVote
 from django.conf import settings
 import stripe
+from helper.helper import check
+
 
 stripe.api_key = settings.STRIPE_SECRET
 devTrackerPlan = settings.DEV_TRACKER_PLAN
@@ -56,9 +58,18 @@ def login(request):
   args['title'] = 'Login'
   return render(request, 'accounts/form.html', args)
 
+# >login view
+def logout(request):
+  auth.logout(request)
+  messages.success(request, 'You have successfully logged out')
+  return redirect(reverse('tracker:index'))
+
 # >profile page view
 @login_required(login_url='accounts:login') 
 def profile(request):
+  if not check(request):
+    return redirect(reverse('accounts:logout'))
+
   user = get_object_or_404(User, id=request.user.id)
   args = {}
   try:
@@ -78,6 +89,8 @@ def profile(request):
 # >settings pageview
 @login_required(login_url='accounts:login')
 def settings(request):
+  if not check(request):
+    return redirect(reverse('accounts:logout'))
   return render(request, 'accounts/settings.html',{"subscription":request.user.subscription,"pubkey":pubKey})
 
 # >settings pageview

@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',  
     'disqus',
     'cloudinary',
+    'helper'
 ]
 
 # Stripe environment variables
@@ -66,7 +67,7 @@ REST_FRAMEWORK = {
     ),
 }
 JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=72),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=10000),
     'JWT_ALLOW_REFRESH': True,
     'JWT_AUTH_COOKIE': 'jwtoken',
 }

@@ -38,7 +38,7 @@
               <a class="list-group-item list-group-item-action text-center" href="{% url 'accounts:settings' %}">Settings</a>
               <form id='auth-form' method="POST">
                 {% csrf_token %}
-                <button class="list-group-item list-group-item-action text-center" href="{% url 'accountsapi:auth' %}">Logout</button>
+                <button class="list-group-item list-group-item-action text-center" href="{% url 'accounts:logout' %}">Logout</button>
               </form>
             </div>
           </div>

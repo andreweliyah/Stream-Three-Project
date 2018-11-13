@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render, redirect, get_list_or_404, get_object_or_404
+from django.core.urlresolvers import reverse
 from .forms import TicketForm, CommentForm
 from .models import Ticket, Comment, UpVote
 from django.http import HttpResponse
@@ -14,6 +15,8 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from helper.helper import check
+
 User = settings.AUTH_USER_MODEL
 
 # Create your views here.
@@ -35,6 +38,8 @@ def index(request):
 # >form view
 @login_required(login_url='accounts:login')
 def form(request): 
+  if not check(request):
+    return redirect(reverse('accounts:logout'))
   # Temp - Process form
   if request.method == 'POST':
     form = TicketForm(request.POST)
@@ -53,6 +58,8 @@ def form(request):
 
 # >ticket view
 def ticket(request, id):
+  if not check(request):
+    return redirect(reverse('accounts:logout'))
   ticket = get_object_or_404(Ticket, id=id) # The specific ticketdetail
   comments = Comment.objects.filter(ticket=ticket) # All comments for this (ticket variable) specific ticketdetail
 

@@ -30,7 +30,6 @@
                 <br>
                 <strong>Date: </strong> {{post.published_date}} 
                 <br> 
-                <a class="disqus-comment-count" href="{% url 'blog:postdetail' id=post.id %}" data-disqus-identifier="{% url 'blog:postdetail' id=post.id %}">0 Comments</a>
               </p>
               <a class="btn btn-primary" href="{% url 'blog:postdetail' id=post.id %}" role="button">View Post <span>| {{post.views}}</span></a>
             </div>

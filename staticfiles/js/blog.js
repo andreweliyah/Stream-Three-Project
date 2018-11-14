@@ -1,6 +1,7 @@
 $(function() {
   $('form#postform').submit(function(e){
     e.preventDefault();
+    $('#submit_btn').attr('disabled','true').addClass('blink').text('Please Wait');
     if(RegExp('edit$').test(document.location.pathname)){
       var type = 'PUT';
     }

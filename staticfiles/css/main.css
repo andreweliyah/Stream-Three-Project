@@ -11,3 +11,15 @@ main {
 
 #disqus_thread {
   width: 100%; }
+
+.blink {
+  -webkit-animation: blink-animation 1s steps(5, start) infinite;
+          animation: blink-animation 1s steps(5, start) infinite; }
+
+@-webkit-keyframes blink-animation {
+  to {
+    opacity: .3; } }
+
+@keyframes blink-animation {
+  to {
+    opacity: .3; } }

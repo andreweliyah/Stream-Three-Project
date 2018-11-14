@@ -51,14 +51,24 @@ def signup(request):
 def login(request):
   if request.user.is_authenticated:
     return redirect(reverse('accounts:profile'))
-
-  form = UserLoginForm()
+  if request.method == 'POST':
+    form = UserLoginForm(request.POST)
+    if form.is_valid():
+      user = auth.authenticate(username=request.POST.get('email'), password=request.POST.get('password'))
+      if user is not None:
+        auth.login(request, user)
+        messages.success(request, 'You are now signed in')
+        return redirect(reverse('accounts:profile'))
+      else:
+        messages.error(request, 'Your email or password is incorrect')
+  else:
+    form = UserLoginForm()
   args = {'form':form}
   args.update(csrf(request))
   args['title'] = 'Login'
   return render(request, 'accounts/form.html', args)
 
-# >login view
+# >logout view
 def logout(request):
   auth.logout(request)
   messages.success(request, 'You have successfully logged out')

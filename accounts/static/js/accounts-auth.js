@@ -3,22 +3,16 @@ $(function() {
   $('#auth-form').submit(function(e){
     e.preventDefault()
 
-    $.ajax({
-      url: "/api-account-auth/",
-      type: "POST",
-      headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-      },
-      contentType: "application/x-www-form-urlencoded",
-      data: $(this).serialize()
-    })
-    .done(function(data, textStatus, jqXHR) {
-      // >>set jwt cookie
+    var post_url;
+    var form_data = $(this).serialize();
+    if($('#id_password')){
+      console.log('pass')
+      post_url='/accounts/login/'
       var email = $('#id_email').val();
       if(!email){
         window.location.reload(true);
       }
-      var password = $('#auth-form input[id^="id_password"]').eq(0).val();
+      var password = $('#id_password').val();
       $.ajax({
         url: "/api-token-auth/",
         type: "POST",
@@ -26,21 +20,103 @@ $(function() {
         data: JSON.stringify({
           "username": email,
           "password": password,
-        }),
+        })
       })
       .done(function(data, textStatus, jqXHR) {
-        window.location.reload(true);
+        $.ajax({
+          url: post_url,
+          type: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+          },
+          contentType: "application/x-www-form-urlencoded",
+          data: form_data
+        })
+        .done(function(data, textStatus, jqXHR) {
+          window.location.reload(true);
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          if(jqXHR.status==400)
+          {
+            $('#messages').text('Username and/or Password are incorrect.')
+          }
+          if(jqXHR.status==403)
+          {
+            $('#messages').text('Authentication Error. Try reloading the page and try again.')
+          }
+          
+          console.log(jqXHR.status)
+          console.log(textStatus)
+          console.log(errorThrown)
+          console.log("HTTP Request Failed");
+          // document.cookie = 'sessionid=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+          // document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        });
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
+        if(jqXHR.status==400)
+        {
+          $('#messages').text('Username and/or Password are incorrect.')
+        }
+        
+        console.log(jqXHR.status)
+        console.log(textStatus)
+        console.log(errorThrown)
         console.log("HTTP Request Failed");
-        document.cookie = 'sessionid=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        // document.cookie = 'sessionid=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        // document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
       });
-    })
-    .fail(function(jqXHR, textStatus, errorThrown) {
-      data = jqXHR.responseJSON
-      $('#messages').text(data['detail'].toUpperCase())
-    })
+    }
+
+
+
+    // $.ajax({
+    //   url: post_url,
+    //   type: "POST",
+    //   headers: {
+    //       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+    //   },
+    //   contentType: "application/x-www-form-urlencoded",
+    //   data: $(this).serialize()
+    // })
+    // .done(function(data, textStatus, jqXHR) {
+    //   // >>set jwt cookie
+    //   var email = $('#id_email').val();
+    //   if(!email){
+    //     window.location.reload(true);
+    //   }
+    //   var password = $('#auth-form input[id^="id_password"]').eq(0).val();
+    //   $.ajax({
+    //     url: "/api-token-auth/",
+    //     type: "POST",
+    //     contentType: "application/json",
+    //     data: JSON.stringify({
+    //       "username": email,
+    //       "password": password,
+    //     }),
+    //   })
+    //   .done(function(data, textStatus, jqXHR) {
+    //     window.location.reload(true);
+    //   })
+    //   .fail(function(jqXHR, textStatus, errorThrown) {
+    //     if(jqXHR.status==400)
+    //     {
+    //       $('#messages').text('Username and/or Password are incorrect.')
+    //     }
+        
+    //     console.log(jqXHR.status)
+    //     console.log(textStatus)
+    //     console.log(errorThrown)
+    //     console.log("HTTP Request Failed");
+    //     // document.cookie = 'sessionid=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    //     // document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    //   });
+    // })
+    // .fail(function(jqXHR, textStatus, errorThrown) {
+    //   console.log(errorThrown)
+    //   data = jqXHR.responseJSON
+    //   $('#messages').text(data['detail'].toUpperCase())
+    // })
   });
 
   // >account deletion
@@ -74,9 +150,4 @@ $(function() {
       $('#messages').text(data['Detail'].toUpperCase())
     })
   })
-
-  if(RegExp(/^\/accounts\/signup\//).test(window.location.pathname) || RegExp(/^\/accounts\/login\//).test(window.location.pathname)){
-      document.cookie = "csrftoken=''; path=/; expires=Fri, 1 May 1970 23:59:59 GMT"
-      document.cookie = "jwtoken=''; path=/; max-age=0; expires=Fri, 1 May 1970 23:59:59 GMT"
-  }
 });

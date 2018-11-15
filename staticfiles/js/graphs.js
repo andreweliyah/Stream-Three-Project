@@ -456,8 +456,14 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   })
                             
   dc.renderAll();
+  if(allcomplete.value().total.issues == 0){
+    $('#avg,#type-complete').empty();
+  }
   $( window ).resize(function() {
     dc.renderAll();
+    if(allcomplete.value().total.issues == 0){
+      $('#avg,#type-complete').empty();
+    }
   });
 
   // >pager setup
@@ -492,7 +498,5 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     smallDataTable.redraw()
   };
 
-  if(allcomplete.value().total.issues == 0){
-    $('#avg,#type-complete').empty().text('Sorry, there are currently no complete tickets to display.');
-  }
+  
 });

@@ -1,12 +1,10 @@
-    var form_data = $(this).serialize();
-// $(function() {
+$(function() {
   // basic auth form sign-in/out/up
   $('#auth-form').submit(function(e){
     e.preventDefault()
 
     var post_url;
     var form_data = $(this).serialize();
-    console.log(form_data)
     if($('#id_password')){
       console.log('pass')
       post_url='/accounts/login/'

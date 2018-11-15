@@ -1,38 +1,27 @@
 $(function() {
   $('form#postform').submit(function(e){
     e.preventDefault();
-    var trying = 0;
-    var retries = 3
-    var retry = setInterval(function(){
-      if(RegExp('edit$').test(document.location.pathname)){
-        var type = 'PUT';
-      }
-      else{
-        var type = 'POST';
-      }
-      var data = new FormData($('form#postform')[0]);
-      $.ajax({
-        url: '/api-blog/?format=json',
-        type: type,
-        cache: false,
-        enctype: 'multipart/form-data',
-        contentType: false,
-        processData: false,
-        dataType: 'json',
-        data: data
-      })
-      .done(function(data,status,data3) {
-        console.log(data)
-        console.log(data3)
-        clearInterval(retry); 
-        window.location.assign('/blog/post-'+data.id+'/')
-      });
-      trying++; 
-      if(trying >= retries){
-        clearInterval(retry);
-        $('#messages').text('There was an error please try again later'.toUpperCase()) 
-      }
-    },1000); 
+    $('#submit_btn').attr('disabled','true').addClass('blink').text('Please Wait');
+    if(RegExp('edit$').test(document.location.pathname)){
+      var type = 'PUT';
+    }
+    else{
+      var type = 'POST';
+    }
+    var data = new FormData($('form#postform')[0]);
+    $.ajax({
+      url: '/api-blog/',
+      type: type,
+      cache: false,
+      enctype: 'multipart/form-data',
+      contentType: false,
+      processData: false,
+      dataType: 'json',
+      data: data
+    })
+    .done(function(data,status,data3) {
+      window.location.assign('/blog/post-'+data.id+'/')
+    });
   });
 
   // >Delete post

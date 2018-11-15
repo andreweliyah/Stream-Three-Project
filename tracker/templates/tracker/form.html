@@ -19,36 +19,24 @@
   <script>
     $('form#ticketform').submit(function(e){
       e.preventDefault();
-      // data = new FormData($('form#ticketform'));
-      var trying = 0;
-      var retries = 3;
-      var retry = setInterval(function(){
-        tinyMCE.triggerSave();
-        var data = {"type": $('#id_type').val(), "description": $('#id_description').val()}
-        $.ajax({
-          url: '/api-tracker/ticket/?format=json',
-          type: 'post',
-          dataType: 'json',
-          data: data
-        })
-        .done(function(data,data2,data3) {   
-          clearInterval(retry); 
-          window.location.assign('/tracker/ticket-'+data.id+'/')
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-          data = jqXHR.responseJSON
-          // console.error(errorThrown)
-          if(errorThrown == "Payment Required"){
-            $('#messages').text('You must be subcribed to submit a feature request'.toUpperCase())
-          }
-        });
-        trying++; 
-        if(trying >= retries){
-          clearInterval(retry);
-          // $('#messages').text('There was an error please try again later'.toUpperCase()) 
+      tinyMCE.triggerSave();
+      var data = {"type": $('#id_type').val(), "description": $('#id_description').val()}
+      $.ajax({
+        url: '/api-tracker/ticket/',
+        type: 'post',
+        dataType: 'json',
+        data: data
+      })
+      .done(function(data,data2,data3) {   
+        window.location.assign('/tracker/ticket-'+data.id+'/')
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        data = jqXHR.responseJSON
+        // console.error(errorThrown)
+        if(errorThrown == "Payment Required"){
+          $('#messages').text('You must be subcribed to submit a feature request'.toUpperCase()).html('You must be subcribed to submit a feature request.'.toUpperCase() + ' <a href="/accounts/settings/">'+'Click here to subcribe.'.toUpperCase()+'</a>')
         }
-      },1000)
-        
+      });       
     });
   </script>
 {% endblock %}

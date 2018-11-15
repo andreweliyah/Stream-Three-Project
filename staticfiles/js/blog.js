@@ -10,7 +10,7 @@ $(function() {
     }
     var data = new FormData($('form#postform')[0]);
     $.ajax({
-      url: '/api-blog/?format=json',
+      url: '/api-blog/',
       type: type,
       cache: false,
       enctype: 'multipart/form-data',

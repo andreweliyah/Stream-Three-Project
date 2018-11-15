@@ -25,7 +25,6 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   // >reduce function
   var reduce = {
     add: function(p, v, nf) {
-      // console.log(v)
       // Total number of issues
       p.total.issues++
       
@@ -250,9 +249,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return d.total.issues/d.total.days;
    })
   .html({
-    one:"<span>%number</span> ticket a day",
-    some:"<span>%number</span> tickets a day",
-    none:"<span>no</span> tickets whatsoever"
+    one:"<span>%number</span> ticket a day complete",
+    some:"<span>%number</span> tickets a day complete"
   })
 
   // >>week
@@ -263,9 +261,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return d.total.issues/d.total.weeks;
    })
   .html({
-    one:"<span>%number</span> ticket a week",
-    some:"<span>%number</span> tickets a week",
-    none:"<span>no</span> tickets at all"
+    one:"<span>%number</span> ticket a week complete",
+    some:"<span>%number</span> tickets a week complete"
   })
 
   // >>month
@@ -276,9 +273,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return d.total.issues/d.total.months;
    })
   .html({
-    one:"<span>%number</span> ticket a month",
-    some:"<span>%number</span> tickets a month",
-    none:"<span>0</span> tickets period"
+    one:"<span>%number</span> ticket a month complete",
+    some:"<span>%number</span> tickets a month complete"
   })
 
   // >complete pie chart
@@ -483,4 +479,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     fullDataTable.redraw()
     smallDataTable.redraw()
   };
+
+  if(allcomplete.value().total.issues == 0){
+    $('#avg,#type-complete').empty().text('Sorry, there are currently no complete tickets to display.');
+  }
 });

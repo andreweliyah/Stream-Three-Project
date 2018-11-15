@@ -12,13 +12,16 @@ main {
 #disqus_thread {
   width: 100%; }
 
-.blink {
-  -webkit-animation: blink-animation 1s steps(5, start) infinite;
-          animation: blink-animation 1s steps(5, start) infinite; }
+.text-box {
+  background-color: #e8e8e8;
+  border-radius: 5px;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  min-height: 100px;
+  padding: 5px; }
 
-@-webkit-keyframes blink-animation {
-  to {
-    opacity: .3; } }
+.blink {
+  animation: blink-animation 1s steps(5, start) infinite; }
 
 @keyframes blink-animation {
   to {

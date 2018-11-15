@@ -24,12 +24,14 @@
     {% endif %}
   {% endif %}
 
-  <h2 class="mt-5">Type</h2>
-  <p>{{ ticket.type }}</p>
+  <h2 class="mt-5">Type: <em>{{ ticket.type }}</em></h2>
 
   <h2 class="mt-5">Description</h2>
-  <p>{{ ticket.description|safe }}</p>
 
+  <div class="text-box">
+    {{ ticket.description|safe }}
+  </div>
+  
   <h2 class="mt-5">Comments</h2>
   {% if ticket.type == 'BUG' or ticket.type == 'FEATURE' and user.subscription %}
     <div id="disqus_thread"></div>

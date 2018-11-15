@@ -335,6 +335,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return 'All';
   })
   .columns([
+    'id',
     "type",
     "description"//,
     // "link"
@@ -368,6 +369,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return 'TOP 5 '+d.type+'S';
   })
   .columns([
+    'id',
     'type',
     'description'//,
     // 'link'
@@ -405,6 +407,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return 'TOP 5 '+d.type+'S';
   })
   .columns([
+    'id',
     'type',
     'description'//,
     // 'link'

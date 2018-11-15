@@ -14,21 +14,19 @@
         <tr>
           <th class="dc-table-head">Ticket</th>
           <th class="dc-table-head">Type</th>
-          <th class="dc-table-head">Status</th>
           <th class="dc-table-head">Description</th>
+          <th class="dc-table-head">Status</th>
           <th class="dc-table-head">Votes</th>
-          <th class="dc-table-head">Link</th>
         </tr>
       </thead>
-      <tbody id='all_data'>
+      <tbody>
         {% for ticket in tickets %}
-          <tr>
-            <td>{{ticket.id}}</td>
+          <tr class="ticket dc-table-row">
+            <td class="id">{{ticket.id}}</td>
             <td>{{ticket.type}}</td>
-            <td>{{ticket.status}}</td>
             <td>{{ticket.description|truncatechars:20|safe }}</td>
+            <td>{{ticket.status}}</td>
             <td>{{ticket.votes}}</td>
-            <td><a href="/tracker/ticket-{{ticket.id}}">Go to Ticket</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -45,20 +43,18 @@
           <th class="dc-table-head">Type</th>
           <th class="dc-table-head">Status</th>
           <th class="dc-table-head">Description</th>
-          <th class="dc-table-head">Link</th>
         </tr>
       </thead>
-      <tbody id='all_data'>
+      <tbody>
         {% for vote in votes %}
           {% for ticket in alltickets %}
             {% if ticket.id == vote.ticket.id %}
             
-            <tr>
-              <td>{{ticket.id}}</td>
+            <tr class="ticket dc-table-row">
+              <td class="id">{{ticket.id}}</td>
               <td>{{ticket.type}}</td>
               <td>{{ticket.status}}</td>
               <td>{{ticket.description|truncatechars:20|safe }}</td>
-              <td><a href="/tracker/ticket-{{ticket.id}}">Go to Ticket</a></td>
             </tr>
             {% endif %}
           {% endfor %}
@@ -70,7 +66,7 @@
   <!-- Comments Submitted -->
   {% if comments %}
     <h3>Your Comments</h3>
-    <table class="table dc-chart border">
+    <table id="comment-table" class="table dc-chart border">
       <thead>
         <tr>
           <th class="dc-table-head">Ticket</th>
@@ -79,7 +75,7 @@
           <th class="dc-table-head">Link</th>
         </tr>
       </thead>
-      <tbody id='all_data'>
+      <tbody>
         {% for comment in comments %}
           {% for ticket in alltickets %}
             {% if ticket.id == comment.ticket.id %}
@@ -95,4 +91,15 @@
       </tbody>
     </table>
   {% endif %}
+{% endblock %}
+{% block aux %}
+<script>
+  // Table links
+  var proto = window.location.protocol;
+  var host = window.location.host;
+  var path;
+  $('.ticket').click(function(){
+     window.location.assign(proto+'//'+host+'/tracker/ticket-'+$(this).children('.id').text());
+  })
+</script>
 {% endblock %}

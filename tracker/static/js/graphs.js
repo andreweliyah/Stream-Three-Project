@@ -17,7 +17,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
         data[i].description = data[i].description.substring(0,truncate)+' ...';
       }
       data[i].modified = dateFormatParser(data[i].modified);
-      data[i].link = '<a href="/tracker/ticket-'+data[i].id+'/">Go to Ticket</a>';
+      // data[i].link = '<a href="/tracker/ticket-'+data[i].id+'/">Go to Ticket</a>';
     });
     return data
   }
@@ -25,6 +25,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   // >reduce function
   var reduce = {
     add: function(p, v, nf) {
+      // console.log(v)
       // Total number of issues
       p.total.issues++
       
@@ -323,8 +324,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     "type",
     "status",
     "description",
-    "votes",
-    "link"
+    "votes"//,
+    // "link"
   ]);
 
   //>>small
@@ -334,9 +335,10 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return 'All';
   })
   .columns([
+    'id',
     "type",
-    "description",
-    "link"
+    "description"//,
+    // "link"
   ]); 
 
   // >Top Voted
@@ -351,8 +353,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     'id',
     'status',
     'description',
-    'votes',
-    'link'
+    'votes'//,
+    // 'link'
   ])
   .sortBy(function (d) {
     return d.votes;
@@ -367,9 +369,10 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return 'TOP 5 '+d.type+'S';
   })
   .columns([
+    'id',
     'type',
-    'description',
-    'link'
+    'description'//,
+    // 'link'
   ])
   .sortBy(function (d) {
     return d.votes;
@@ -388,8 +391,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     'id',
     'status',
     'description',
-    'votes',
-    'link'
+    'votes'//,
+    // 'link'
   ])
   .sortBy(function (d) {
     return d.votes;
@@ -404,9 +407,10 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     return 'TOP 5 '+d.type+'S';
   })
   .columns([
+    'id',
     'type',
-    'description',
-    'link'
+    'description'//,
+    // 'link'
   ])
   .sortBy(function (d) {
     return d.votes;
@@ -434,6 +438,14 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
       smallDataTable
       .beginSlice(0)
       .endSlice(pageLimit);
+
+      // Table links
+      $('.table .dc-table-row').click(function(){ 
+        var proto = window.location.protocol;
+        var host = window.location.host;
+
+        window.location.assign(proto+'//'+host+'/tracker/ticket-'+$(this).children('.dc-table-column._0').text());
+      })
     });
     return d
    })

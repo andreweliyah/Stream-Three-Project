@@ -326,7 +326,8 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     "description",
     "votes"//,
     // "link"
-  ]);
+  ])
+  .size(Infinity);
 
   //>>small
   smallDataTable

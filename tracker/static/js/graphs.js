@@ -324,9 +324,9 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     "type",
     "status",
     "description",
-    "votes"//,
-    // "link"
-  ]);
+    "votes"
+  ])
+  .size(Infinity);
 
   //>>small
   smallDataTable
@@ -337,9 +337,9 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   .columns([
     'id',
     "type",
-    "description"//,
-    // "link"
-  ]); 
+    "description"
+  ])
+  .size(Infinity); 
 
   // >Top Voted
   // >>feature
@@ -353,8 +353,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     'id',
     'status',
     'description',
-    'votes'//,
-    // 'link'
+    'votes'
   ])
   .sortBy(function (d) {
     return d.votes;
@@ -371,8 +370,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   .columns([
     'id',
     'type',
-    'description'//,
-    // 'link'
+    'description'
   ])
   .sortBy(function (d) {
     return d.votes;
@@ -391,8 +389,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     'id',
     'status',
     'description',
-    'votes'//,
-    // 'link'
+    'votes'
   ])
   .sortBy(function (d) {
     return d.votes;
@@ -409,8 +406,7 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
   .columns([
     'id',
     'type',
-    'description'//,
-    // 'link'
+    'description'
   ])
   .sortBy(function (d) {
     return d.votes;

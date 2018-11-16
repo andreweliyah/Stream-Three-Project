@@ -492,7 +492,13 @@ d3.json('/api-tracker/ticket/').then(function(serverdata){
     }  
     fullDataTable.redraw()
     smallDataTable.redraw()
-  };
+    // Table links
+    $('.table .dc-table-row').click(function(){ 
+      var proto = window.location.protocol;
+      var host = window.location.host;
 
-  
+      window.location.assign(proto+'//'+host+'/tracker/ticket-'+$(this).children('.dc-table-column._0').text());
+    })  
+  };
+    
 });

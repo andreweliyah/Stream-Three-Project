@@ -35,7 +35,7 @@ def signup(request):
         if user:
           auth.login(request, user)
           messages.success(request, "You have successfully registered")
-          response = HttpResponse()
+          # response = HttpResponse()
 
           return redirect(reverse('accounts:profile'))
         else:

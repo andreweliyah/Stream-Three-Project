@@ -13,6 +13,7 @@ This app is called DevTracker, and is used to keep track of developers of a blog
 There is also an optional subscription service to unlock the ability to vote on and submit feature tickets, bugs are always free to submit, comment and vote on. This is done in the settings under subscription with the pay button.
 
 There is also a blog for the developers to use to keep their users up-to-date. The profile page shows all the activity of the user. The main DevTracker or page is used for data visualization. Showing the average ticket completion for days weeks and months. A pie chart showing the percentage of completed tickets by type of ticket (bug or feature) to data tables showing the top five voted on features and bugs and finally a data table that shows the complete list of tickets regardless of status or type. Users can click on the link and be taken to the detail page of any ticket where they can comment or vote on it as long as they have the proper prescription for the ticket type.
+
 ## Technologies
 - HTML
 - CSS

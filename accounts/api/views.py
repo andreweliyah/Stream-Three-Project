@@ -179,11 +179,7 @@ class PaymentAPIView(APIView):
           print('Creating new customer')
           customer = createCustomer(request)
       except:
-        # If stripe_id is deleted then create a new one
-        print('do something else')
-        # print(customer)
-        
-
+        print('There was an error.')
     else: # If not...
       print('I don\'t have a stripe id')
 
@@ -202,8 +198,6 @@ class PaymentAPIView(APIView):
     request.user.save()
     return Response(status=status.HTTP_202_ACCEPTED)
 
-    
-  
   def delete(self, request):
     try:
       # does user have a valid subscription?

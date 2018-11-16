@@ -79,7 +79,7 @@ def logout(request):
 def profile(request):
   if not check(request):
     return redirect(reverse('accounts:logout'))
-
+  print(request.user)
   user = get_object_or_404(User, id=request.user.id)
   args = {}
   try:
@@ -89,7 +89,6 @@ def profile(request):
     votes = UpVote.objects.filter(user=user)
     args['alltickets'] = allTickets
     args['tickets'] = tickets
-    args['comments'] = comments
     args['votes'] = votes
   except Exception as e:
     print e

@@ -22,7 +22,6 @@
           <div class="p-3 mb-2 blog-list-item col-12 col-md-4 lead">
             {% if post.image %}
               {% cloudinary post.image width=200 height=142 crop="fill" class="featured-img mx-auto" style="display: block; max-width:200px; max-height:142px; width: auto; height: auto;" %}
-              <!-- <img class="featured-img mx-auto " src="{{post.image.url}}" alt="image" style="display: block; max-width:200px; max-height:142px; width: auto; height: auto;"> -->
             {% endif %}
             <div class="p-2 text-center">
               <h2>{{post.title}}</h2>
@@ -43,6 +42,4 @@
       {% endif %}
     </div>
   </div>
-  <!-- <script id="dsq-count-scr" src="//blog-comment.disqus.com/count.js"></script> -->
-  <!-- <script id="dsq-count-scr" src="//blog-comment.disqus.com/count.js" async></script> -->
 {% endblock %}

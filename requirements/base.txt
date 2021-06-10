@@ -4,7 +4,7 @@ cffi==1.11.5
 cloudinary==1.14.0
 chardet==3.0.4
 cryptography==2.3.1
-Django==1.11.14
+Django==2.2.24
 django-cors-headers==2.4.0
 django-crispy-forms==1.7.2
 django-disqus==0.5
